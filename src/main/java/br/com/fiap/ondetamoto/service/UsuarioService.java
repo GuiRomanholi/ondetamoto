@@ -48,7 +48,7 @@ public class UsuarioService {
         return new UsuarioResponse(usuario.getId_usu(), usuario.getEmail(), link);
     }
 
-    public List<UsuarioResponse> clientesToResponse(List<Usuario> usuarios) {
+    public List<UsuarioResponse> usuariosToResponse(List<Usuario> usuarios) {
         List<UsuarioResponse> usuariosResponse = new ArrayList<>();
         for (Usuario usuario : usuarios) {
             usuariosResponse.add(usuarioToResponse(usuario, true));
