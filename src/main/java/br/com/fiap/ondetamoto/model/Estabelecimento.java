@@ -1,9 +1,8 @@
 package br.com.fiap.ondetamoto.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 public class Estabelecimento {
@@ -11,4 +10,43 @@ public class Estabelecimento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_est;
     private String endereco;
+    @OneToMany(mappedBy = "estabelecimento")
+    private List<Usuario> usuarios;
+
+    @OneToMany(mappedBy = "estabelecimento")
+    private List<Setores> setores;
+
+    // Getters e Setters
+
+    public Long getId_est() {
+        return id_est;
+    }
+
+    public void setId_est(Long id_est) {
+        this.id_est = id_est;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    public List<Usuario> getUsuarios() {
+        return usuarios;
+    }
+
+    public void setUsuarios(List<Usuario> usuarios) {
+        this.usuarios = usuarios;
+    }
+
+    public List<Setores> getSetores() {
+        return setores;
+    }
+
+    public void setSetores(List<Setores> setores) {
+        this.setores = setores;
+    }
 }
