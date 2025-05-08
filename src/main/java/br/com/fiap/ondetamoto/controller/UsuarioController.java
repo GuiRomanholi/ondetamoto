@@ -74,5 +74,43 @@ public class UsuarioController {
         return new ResponseEntity<>(usuarioService.usuarioToResponse(usuario.get(), false), HttpStatus.OK);
     }
 
+    @Operation(summary = "Atualiza um usuario existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuario encontrado e atualizado com sucesso",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Usuario.class))}),
+            @ApiResponse(responseCode = "400", description = "Nenhum usuario encontrado para atualizar",
+                    content = @Content(schema = @Schema()))
+    })
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Usuario> updateUsuario(@PathVariable Long id,
+                                                 @RequestBody Usuario usuario) {
+        Optional<Usuario> usuarioExistente = usuarioRepository.findById(id);
+        if (usuarioExistente.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        usuario.setId_usu(usuarioExistente.get().getId_usu());
+        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+        return new ResponseEntity<>(usuarioAtualizado, HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Exclui um usuario por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "400", description = "Nenhum usuario encontrado para excluir",
+                    content = @Content(schema = @Schema())),
+            @ApiResponse(responseCode = "204", description = "Usuario excluído com sucesso",
+                    content = @Content(schema = @Schema()))
+    })
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
+        Optional<Usuario> usuarioExistente = usuarioRepository.findById(id);
+        if (usuarioExistente.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        usuarioRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 
 }
