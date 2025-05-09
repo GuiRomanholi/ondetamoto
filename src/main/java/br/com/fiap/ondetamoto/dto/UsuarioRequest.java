@@ -1,5 +1,7 @@
 package br.com.fiap.ondetamoto.dto;
 
+import br.com.fiap.ondetamoto.model.Estabelecimento;
+import jakarta.persistence.ElementCollection;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -16,6 +18,8 @@ public class UsuarioRequest {
     message = "A senha deve ter entre 8 e 25 caracteres, conter ao menos uma letra maiúscula e um número, e não pode ter caracteres especiais.")
     @NotBlank(message = "A senha é Obrigatória")
     private String senha;
+
+    private Estabelecimento estabelecimento;
 
     public UsuarioRequest(){
     }
@@ -39,5 +43,13 @@ public class UsuarioRequest {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public Estabelecimento getEstabelecimento() {
+        return estabelecimento;
+    }
+
+    public void setEstabelecimento(Estabelecimento estabelecimento) {
+        this.estabelecimento = estabelecimento;
     }
 }

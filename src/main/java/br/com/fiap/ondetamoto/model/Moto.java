@@ -8,10 +8,10 @@ public class Moto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_mot;
-    private Long tipo;
+    private String marca;
     @NotBlank(message = "A placa é obrigatória")
-    private Long placa;
-    private Long tag;
+    private String placa;
+    private String tag;
 
     @ManyToOne
     @JoinColumn(name = "setores_id_sec")
@@ -27,27 +27,27 @@ public class Moto {
         this.id_mot = id_mot;
     }
 
-    public Long getTipo() {
-        return tipo;
+    public String getMarca() {
+        return marca;
     }
 
-    public void setTipo(Long tipo) {
-        this.tipo = tipo;
+    public void setMarca(String marca) {
+        this.marca = marca;
     }
 
-    public Long getPlaca() {
+    public String getPlaca() {
         return placa;
     }
 
-    public void setPlaca(Long placa) {
+    public void setPlaca(String placa) {
         this.placa = placa;
     }
 
-    public Long getTag() {
+    public String getTag() {
         return tag;
     }
 
-    public void setTag(Long tag) {
+    public void setTag(String tag) {
         this.tag = tag;
     }
 
