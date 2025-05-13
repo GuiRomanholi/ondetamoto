@@ -14,8 +14,17 @@ public class Moto {
     private String tag;
 
     @ManyToOne
-    @JoinColumn(name = "setores_id_sec")
+    @JoinColumn(name = "id_setores")
     private Setores setores;
+
+    public Moto(){
+    }
+
+    public Moto(Long id_mot, String marca, String placa){
+        this.id_mot = id_mot;
+        this.marca = marca;
+        this.placa = placa;
+    }
 
     // Getters e Setters
 

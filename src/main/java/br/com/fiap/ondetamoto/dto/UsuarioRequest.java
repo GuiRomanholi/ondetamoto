@@ -24,9 +24,10 @@ public class UsuarioRequest {
     public UsuarioRequest(){
     }
 
-    public UsuarioRequest(String email, String senha){
+    public UsuarioRequest(String email, String senha, Estabelecimento estabelecimento){
         this.email = email;
         this.senha = senha;
+        this.estabelecimento = estabelecimento;
     }
 
     public String getEmail() {

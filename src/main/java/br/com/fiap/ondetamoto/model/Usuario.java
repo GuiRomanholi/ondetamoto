@@ -11,7 +11,7 @@ public class Usuario {
     private String email;
     private String senha;
     @ManyToOne
-    @JoinColumn(name = "estabelecimentos_id_est")
+    @JoinColumn(name = "id_estabelecimento")
     private Estabelecimento estabelecimento;
 
     public Usuario(){

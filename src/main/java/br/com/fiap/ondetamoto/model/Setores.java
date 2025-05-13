@@ -14,7 +14,7 @@ public class Setores {
     private String tamanho;
 
     @ManyToOne
-    @JoinColumn(name = "estabelecimentos_id_est")
+    @JoinColumn(name = "id_estabelecimento")
     private Estabelecimento estabelecimento;
 
     @OneToMany(mappedBy = "setores")
