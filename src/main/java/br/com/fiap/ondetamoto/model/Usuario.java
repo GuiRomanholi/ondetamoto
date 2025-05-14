@@ -1,5 +1,6 @@
 package br.com.fiap.ondetamoto.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import org.apache.catalina.User;
 
@@ -12,6 +13,7 @@ public class Usuario {
     private String senha;
     @ManyToOne
     @JoinColumn(name = "id_estabelecimento")
+    @JsonBackReference
     private Estabelecimento estabelecimento;
 
     public Usuario(){

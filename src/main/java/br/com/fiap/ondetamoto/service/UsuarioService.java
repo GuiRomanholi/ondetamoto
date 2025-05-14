@@ -23,13 +23,24 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final EstabelecimentoRepository estabelecimentoRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository){this.usuarioRepository = usuarioRepository;}
+    public UsuarioService(UsuarioRepository usuarioRepository, EstabelecimentoRepository estabelecimentoRepository){
+        this.usuarioRepository = usuarioRepository;
+        this.estabelecimentoRepository = estabelecimentoRepository;
+    }
 
     public Usuario requestToUsuario(UsuarioRequest usuarioRequest) {
-        return new Usuario(null,
+        Usuario usuario = new Usuario(null,
                 usuarioRequest.getEmail(),
                 usuarioRequest.getSenha());
+
+        if (usuarioRequest.getIdEstabelecimento() != null) {
+            estabelecimentoRepository.findById(usuarioRequest.getIdEstabelecimento())
+                    .ifPresent(usuario::setEstabelecimento);
+        }
+
+        return usuario;
     }
 
     public UsuarioResponse usuarioToResponse(Usuario usuario, boolean self){

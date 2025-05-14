@@ -1,5 +1,6 @@
 package br.com.fiap.ondetamoto.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -12,6 +13,7 @@ public class Estabelecimento {
     private String endereco;
 
     @OneToMany(mappedBy = "estabelecimento")
+    @JsonManagedReference
     private List<Usuario> usuarios;
 
     @OneToMany(mappedBy = "estabelecimento")

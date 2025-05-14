@@ -19,15 +19,15 @@ public class UsuarioRequest {
     @NotBlank(message = "A senha é Obrigatória")
     private String senha;
 
-    private Estabelecimento estabelecimento;
+    private Long idEstabelecimento;
 
     public UsuarioRequest(){
     }
 
-    public UsuarioRequest(String email, String senha, Estabelecimento estabelecimento){
+    public UsuarioRequest(String email, String senha, Long idEstabelecimento){
         this.email = email;
         this.senha = senha;
-        this.estabelecimento = estabelecimento;
+        this.idEstabelecimento = idEstabelecimento;
     }
 
     public String getEmail() {
@@ -46,11 +46,11 @@ public class UsuarioRequest {
         this.senha = senha;
     }
 
-    public Estabelecimento getEstabelecimento() {
-        return estabelecimento;
+    public Long getIdEstabelecimento() {
+        return idEstabelecimento;
     }
 
-    public void setEstabelecimento(Estabelecimento estabelecimento) {
-        this.estabelecimento = estabelecimento;
+    public void setIdEstabelecimento(Long idEstabelecimento) {
+        this.idEstabelecimento = idEstabelecimento;
     }
 }
