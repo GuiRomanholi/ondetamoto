@@ -1,4 +1,6 @@
 package br.com.fiap.ondetamoto.dto;
 
-public record EstabelecimentoResponse(Long id_est, String endereco) {
+import org.springframework.hateoas.Link;
+
+public record EstabelecimentoResponse(Long id_est, String endereco, Link link) {
 }

@@ -17,6 +17,13 @@ public class Estabelecimento {
     @OneToMany(mappedBy = "estabelecimento")
     private List<Setores> setores;
 
+    public Estabelecimento(){}
+
+    public Estabelecimento(Long id_est, String endereco){
+        this.id_est = id_est;
+        this.endereco = endereco;
+    }
+
     // Getters e Setters
 
     public Long getId_est() {
