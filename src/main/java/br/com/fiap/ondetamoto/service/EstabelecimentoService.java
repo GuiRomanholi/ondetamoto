@@ -35,7 +35,7 @@ public class EstabelecimentoService {
             link = linkTo(
                     methodOn(
                             EstabelecimentoController.class
-                    ).readEstabelecimento(estabelecimento.getId_est())
+                    ).readEstabelecimento(estabelecimento.getId())
             ).withSelfRel();
         } else {
             link = linkTo(
@@ -44,7 +44,7 @@ public class EstabelecimentoService {
                     ).readEstabelecimentos(0)
             ).withRel("Lista de Estabelecimentos");
         }
-        return new EstabelecimentoResponse(estabelecimento.getId_est(), estabelecimento.getEndereco(), link);
+        return new EstabelecimentoResponse(estabelecimento.getId(), estabelecimento.getEndereco(), link);
     }
 
     public List<EstabelecimentoResponse> estabelecimentosToResponse(List<Estabelecimento> estabelecimentos) {

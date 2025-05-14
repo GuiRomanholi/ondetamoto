@@ -8,7 +8,7 @@ import java.util.List;
 public class Estabelecimento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_est;
+    private Long id;
     private String endereco;
 
     @OneToMany(mappedBy = "estabelecimento")
@@ -19,19 +19,20 @@ public class Estabelecimento {
 
     public Estabelecimento(){}
 
-    public Estabelecimento(Long id_est, String endereco){
-        this.id_est = id_est;
+    public Estabelecimento(Long id, String endereco){
+        this.id = id;
         this.endereco = endereco;
     }
 
     // Getters e Setters
 
-    public Long getId_est() {
-        return id_est;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setId_est(Long id_est) {
-        this.id_est = id_est;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEndereco() {

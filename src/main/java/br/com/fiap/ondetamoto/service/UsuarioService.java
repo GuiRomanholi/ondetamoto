@@ -3,7 +3,9 @@ package br.com.fiap.ondetamoto.service;
 import br.com.fiap.ondetamoto.controller.UsuarioController;
 import br.com.fiap.ondetamoto.dto.UsuarioRequest;
 import br.com.fiap.ondetamoto.dto.UsuarioResponse;
+import br.com.fiap.ondetamoto.model.Estabelecimento;
 import br.com.fiap.ondetamoto.model.Usuario;
+import br.com.fiap.ondetamoto.repository.EstabelecimentoRepository;
 import br.com.fiap.ondetamoto.repository.UsuarioRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,17 +14,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class UsuarioService {
+
     private final UsuarioRepository usuarioRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository){
-        this.usuarioRepository = usuarioRepository;
-    }
+    public UsuarioService(UsuarioRepository usuarioRepository){this.usuarioRepository = usuarioRepository;}
 
     public Usuario requestToUsuario(UsuarioRequest usuarioRequest) {
         return new Usuario(null,
@@ -34,18 +36,15 @@ public class UsuarioService {
         Link link;
         if (self){
             link = linkTo(
-                    methodOn(
-                            UsuarioController.class
-                    ).readUsuario(usuario.getId_usu())
+                    methodOn(UsuarioController.class).readUsuario(usuario.getId())
             ).withSelfRel();
         } else {
             link = linkTo(
-                    methodOn(
-                            UsuarioController.class
-                    ).readUsuarios(0)
+                    methodOn(UsuarioController.class).readUsuarios(0)
             ).withRel("Lista de Usuarios");
         }
-        return new UsuarioResponse(usuario.getId_usu(), usuario.getEmail(), link);
+
+        return new UsuarioResponse(usuario.getId(), usuario.getEmail(), usuario.getEstabelecimento(), link);
     }
 
     public List<UsuarioResponse> usuariosToResponse(List<Usuario> usuarios) {

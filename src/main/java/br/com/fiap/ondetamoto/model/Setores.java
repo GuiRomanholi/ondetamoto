@@ -8,7 +8,7 @@ import java.util.List;
 public class Setores {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_sec;
+    private Long id;
     private String nome;
     private Tipo tipo;
     private String tamanho;
@@ -22,12 +22,13 @@ public class Setores {
 
     // Getters e Setters
 
-    public Long getId_sec() {
-        return id_sec;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setId_sec(Long id_sec) {
-        this.id_sec = id_sec;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {

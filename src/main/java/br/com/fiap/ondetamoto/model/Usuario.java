@@ -7,7 +7,7 @@ import org.apache.catalina.User;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_usu;
+    private Long id;
     private String email;
     private String senha;
     @ManyToOne
@@ -17,20 +17,21 @@ public class Usuario {
     public Usuario(){
     }
 
-    public Usuario(Long id_usu, String email, String senha){
-        this.id_usu = id_usu;
+    public Usuario(Long id, String email, String senha){
+        this.id = id;
         this.email = email;
         this.senha = senha;
     }
 
     // Getters e Setters
 
-    public Long getId_usu() {
-        return id_usu;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setId_usu(Long id_usu) {
-        this.id_usu = id_usu;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {

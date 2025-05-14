@@ -80,15 +80,18 @@ public class MotoController {
             @ApiResponse(responseCode = "400", description = "Nenhuma moto encontrada para atualizar",
                     content = @Content(schema = @Schema()))
     })
+
     @PutMapping("/{id}")
     public ResponseEntity<Moto> updateMoto(@PathVariable Long id,
-                                           @RequestBody Moto moto) {
+                                           @Valid @RequestBody MotoRequest motoRequest) {
         Optional<Moto> motoExistente = motoRepository.findById(id);
         if (motoExistente.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        moto.setId_mot(motoExistente.get().getId_mot());
-        Moto motoAtualizada = motoRepository.save(moto);
+
+        Moto motoAtualizada = motoService.updateMotoFromRequest(motoExistente.get(), motoRequest);
+        motoAtualizada = motoRepository.save(motoAtualizada);
+
         return new ResponseEntity<>(motoAtualizada, HttpStatus.CREATED);
     }
 

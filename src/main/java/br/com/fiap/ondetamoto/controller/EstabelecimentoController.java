@@ -87,7 +87,7 @@ public class EstabelecimentoController {
         if (estabelecimentoExistente.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        estabelecimento.setId_est(estabelecimentoExistente.get().getId_est());
+        estabelecimento.setId(estabelecimentoExistente.get().getId());
         Estabelecimento estabelecimentoAtualizado = estabelecimentoRepository.save(estabelecimento);
         return new ResponseEntity<>(estabelecimentoAtualizado, HttpStatus.CREATED);
     }

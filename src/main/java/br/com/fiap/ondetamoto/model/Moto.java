@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 public class Moto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_mot;
+    private Long id;
     private String marca;
     @NotBlank(message = "A placa é obrigatória")
     private String placa;
@@ -20,20 +20,22 @@ public class Moto {
     public Moto(){
     }
 
-    public Moto(Long id_mot, String marca, String placa){
-        this.id_mot = id_mot;
+    public Moto(Long id, String marca, String placa, String tag){
+        this.id = id;
         this.marca = marca;
         this.placa = placa;
+        this.tag = tag;
     }
 
     // Getters e Setters
 
-    public Long getId_mot() {
-        return id_mot;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setId_mot(Long id_mot) {
-        this.id_mot = id_mot;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getMarca() {

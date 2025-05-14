@@ -90,7 +90,7 @@ public class UsuarioController {
         if (usuarioExistente.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        usuario.setId_usu(usuarioExistente.get().getId_usu());
+        usuario.setId(usuarioExistente.get().getId());
         Usuario usuarioAtualizado = usuarioRepository.save(usuario);
         return new ResponseEntity<>(usuarioAtualizado, HttpStatus.CREATED);
     }

@@ -23,7 +23,7 @@ public class MotoRequest {
     public MotoRequest(String marca, String placa, String tag){
         this.marca = marca;
         this.placa = placa;
-        this.tag =tag;
+        this.tag = tag;
     }
 
     public String getMarca() {

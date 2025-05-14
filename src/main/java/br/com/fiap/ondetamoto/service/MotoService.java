@@ -27,26 +27,25 @@ public class MotoService {
     public Moto requestToMoto(MotoRequest motoRequest) {
         return new Moto(null,
                 motoRequest.getMarca(),
-                motoRequest.getPlaca());
+                motoRequest.getPlaca(),
+                motoRequest.getTag());
     }
 
     public MotoResponse motoToResponse(Moto moto, boolean self){
         Link link;
         if (self){
             link = linkTo(
-                    methodOn(
-                            MotoController.class
-                    ).readMoto(moto.getId_mot())
+                    methodOn(MotoController.class).readMoto(moto.getId())
             ).withSelfRel();
         } else {
             link = linkTo(
-                    methodOn(
-                            MotoController.class
-                    ).readMotos(0)
+                    methodOn(MotoController.class).readMotos(0)
             ).withRel("Lista de Motos");
         }
-        return new MotoResponse(moto.getId_mot(), moto.getPlaca(), moto.getMarca(),link);
+
+        return new MotoResponse(moto.getId(), moto.getPlaca(), moto.getMarca(), moto.getTag(), link);
     }
+
 
     public List<MotoResponse> motosToResponse(List<Moto> motos) {
         List<MotoResponse> motosResponse = new ArrayList<>();
@@ -59,6 +58,13 @@ public class MotoService {
     public Page<MotoResponse> findAll(Pageable pageable) {
         return motoRepository.findAll(pageable)
                 .map(moto -> motoToResponse(moto, true));
+    }
+
+    public Moto updateMotoFromRequest(Moto motoExistente, MotoRequest motoRequest) {
+        motoExistente.setMarca(motoRequest.getMarca());
+        motoExistente.setPlaca(motoRequest.getPlaca());
+        motoExistente.setTag(motoRequest.getTag());
+        return motoExistente;
     }
 }
 

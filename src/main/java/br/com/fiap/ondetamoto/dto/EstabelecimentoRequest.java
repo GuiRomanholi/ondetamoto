@@ -1,27 +1,27 @@
 package br.com.fiap.ondetamoto.dto;
 
 public class EstabelecimentoRequest {
-    private Long id_est;
+    private Long id;
     private String endereco;
 
     public EstabelecimentoRequest() {
     }
 
-    public EstabelecimentoRequest(Long id_est, String endereco) {
-        this.id_est = id_est;
+    public EstabelecimentoRequest(Long id, String endereco) {
+        this.id = id;
         this.endereco = endereco;
     }
 
-    public EstabelecimentoRequest(Long id_est) {
-        this.id_est = id_est;
+    public EstabelecimentoRequest(Long id) {
+        this.id = id;
     }
 
-    public Long getId_est() {
-        return id_est;
+    public Long getId() {
+        return id;
     }
 
-    public void setId_est(Long id_est) {
-        this.id_est = id_est;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEndereco() {
