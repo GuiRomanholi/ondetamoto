@@ -10,6 +10,7 @@ public class Estabelecimento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_est;
     private String endereco;
+
     @OneToMany(mappedBy = "estabelecimento")
     private List<Usuario> usuarios;
 

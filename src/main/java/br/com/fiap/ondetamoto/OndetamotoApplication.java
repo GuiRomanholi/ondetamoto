@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 //http://localhost:8080/swagger-ui/index.html
 @SpringBootApplication
 @OpenAPIDefinition(info =
-@Info(title = "API OndeTaMoto", description = "API RESTful com Swagger para Projeto", version = "v1"))
+@Info(title = "API OndeTaMoto", description = "API RESTful com Swagger para OndeTaMoto", version = "v1"))
 public class OndetamotoApplication {
 
 	public static void main(String[] args) {
