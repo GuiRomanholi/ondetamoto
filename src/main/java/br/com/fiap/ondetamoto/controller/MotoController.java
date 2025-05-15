@@ -44,7 +44,7 @@ public class MotoController {
     })
     @PostMapping
     public ResponseEntity<Moto> createMoto(@Valid @RequestBody MotoRequest moto){
-        Moto motoSalva = motoRepository.save(motoService.requestToMoto(moto));
+        Moto motoSalva = motoService.createMoto(motoService.requestToMoto(moto));
         return new ResponseEntity<>(motoSalva, HttpStatus.CREATED);
     }
 
@@ -65,12 +65,13 @@ public class MotoController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<MotoResponse> readMoto(@PathVariable Long id) {
-        Optional<Moto> moto = motoRepository.findById(id);
-        if (moto.isEmpty()) {
+        try {
+            return new ResponseEntity<>(motoService.findById(id), HttpStatus.OK);
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(motoService.motoToResponse(moto.get(), false), HttpStatus.OK);
     }
+
 
     @Operation(summary = "Atualiza uma moto existente")
     @ApiResponses(value = {
@@ -108,8 +109,9 @@ public class MotoController {
         if (motoExistente.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        motoRepository.deleteById(id);
+        motoService.deleteMoto(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 
 }

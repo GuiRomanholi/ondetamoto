@@ -5,6 +5,8 @@ import br.com.fiap.ondetamoto.dto.MotoRequest;
 import br.com.fiap.ondetamoto.dto.MotoResponse;
 import br.com.fiap.ondetamoto.model.Moto;
 import br.com.fiap.ondetamoto.repository.MotoRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
@@ -55,16 +57,41 @@ public class MotoService {
         return motosResponse;
     }
 
+    @Cacheable(value = "motos", key = "#pageable.pageNumber")
     public Page<MotoResponse> findAll(Pageable pageable) {
         return motoRepository.findAll(pageable)
                 .map(moto -> motoToResponse(moto, true));
     }
 
+    @Cacheable(value = "moto", key = "#id")
+    public MotoResponse findById(Long id) {
+        Moto moto = motoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Moto não encontrada"));
+        return motoToResponse(moto, false);
+    }
+
+    @CacheEvict(value = {"moto", "motos"}, allEntries = true)
+    public void deleteById(Long id) {
+        motoRepository.deleteById(id);
+    }
+
+
+    @CacheEvict(value = {"motos", "moto"}, allEntries = true)
     public Moto updateMotoFromRequest(Moto motoExistente, MotoRequest motoRequest) {
         motoExistente.setMarca(motoRequest.getMarca());
         motoExistente.setPlaca(motoRequest.getPlaca());
         motoExistente.setTag(motoRequest.getTag());
         return motoExistente;
+    }
+
+    @CacheEvict(value = "motos", allEntries = true)
+    public Moto createMoto(Moto moto) {
+        return motoRepository.save(moto);
+    }
+
+    @CacheEvict(value = {"motos", "moto"}, allEntries = true)
+    public void deleteMoto(Long id) {
+        motoRepository.deleteById(id);
     }
 }
 
