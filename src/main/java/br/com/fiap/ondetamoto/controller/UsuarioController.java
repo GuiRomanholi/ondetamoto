@@ -85,13 +85,16 @@ public class UsuarioController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> updateUsuario(@PathVariable Long id,
-                                                 @RequestBody Usuario usuario) {
+                                                 @Valid @RequestBody UsuarioRequest usuarioRequest) {
         Optional<Usuario> usuarioExistente = usuarioRepository.findById(id);
         if (usuarioExistente.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        usuario.setId(usuarioExistente.get().getId());
-        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+
+        Usuario usuarioAtualizado = usuarioService.requestToUsuario(usuarioRequest);
+        usuarioAtualizado.setId(id);
+
+        usuarioRepository.save(usuarioAtualizado);
         return new ResponseEntity<>(usuarioAtualizado, HttpStatus.CREATED);
     }
 
