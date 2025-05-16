@@ -5,6 +5,9 @@ import br.com.fiap.ondetamoto.dto.EstabelecimentoRequest;
 import br.com.fiap.ondetamoto.dto.EstabelecimentoResponse;
 import br.com.fiap.ondetamoto.model.Estabelecimento;
 import br.com.fiap.ondetamoto.repository.EstabelecimentoRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
@@ -58,6 +61,28 @@ public class EstabelecimentoService {
     public Page<EstabelecimentoResponse> findAll(Pageable pageable) {
         return estabelecimentoRepository.findAll(pageable)
                 .map(estabelecimento -> estabelecimentoToResponse(estabelecimento, true));
+    }
+
+    @Cacheable(value = "estabelecimentos", key = "#id")
+    public EstabelecimentoResponse findById(Long id) {
+        Estabelecimento est = estabelecimentoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+        return estabelecimentoToResponse(est, false);
+    }
+
+    @CacheEvict(value = "estabelecimentos", key = "#id")
+    public void deleteEstabelecimento(Long id) {
+        estabelecimentoRepository.deleteById(id);
+    }
+
+    @CachePut(value = "estabelecimentos", key = "#id")
+    public EstabelecimentoResponse updateEstabelecimento(Long id, EstabelecimentoRequest request) {
+        Estabelecimento estExistente = estabelecimentoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+
+        estExistente.setEndereco(request.getEndereco());
+        Estabelecimento salvo = estabelecimentoRepository.save(estExistente);
+        return estabelecimentoToResponse(salvo, false);
     }
 }
 

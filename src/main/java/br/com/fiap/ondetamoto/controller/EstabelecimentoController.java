@@ -43,9 +43,11 @@ public class EstabelecimentoController {
                     content = @Content(schema = @Schema()))
     })
     @PostMapping
-    public ResponseEntity<Estabelecimento> createEstabelecimento(@Valid @RequestBody EstabelecimentoRequest estabelecimento) {
-        Estabelecimento estabelecimentoSalvo = estabelecimentoRepository.save(estabelecimentoService.requestToEstabelecimento(estabelecimento));
-        return new ResponseEntity<>(estabelecimentoSalvo, HttpStatus.CREATED);
+    public ResponseEntity<EstabelecimentoResponse> createEstabelecimento(@Valid @RequestBody EstabelecimentoRequest estabelecimentoRequest) {
+        Estabelecimento estabelecimentoSalvo = estabelecimentoService.requestToEstabelecimento(estabelecimentoRequest);
+        estabelecimentoSalvo = estabelecimentoRepository.save(estabelecimentoSalvo);
+        EstabelecimentoResponse response = estabelecimentoService.estabelecimentoToResponse(estabelecimentoSalvo, false);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Retorna uma lista de estabelecimentos")
@@ -69,7 +71,8 @@ public class EstabelecimentoController {
         if (estabelecimento.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(estabelecimentoService.estabelecimentoToResponse(estabelecimento.get(), false), HttpStatus.OK);
+        EstabelecimentoResponse response = estabelecimentoService.findById(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Operation(summary = "Atualiza um estabelecimento existente")
@@ -81,15 +84,14 @@ public class EstabelecimentoController {
                     content = @Content(schema = @Schema()))
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Estabelecimento> updateEstabelecimento(@PathVariable Long id,
-                                                                 @RequestBody Estabelecimento estabelecimento) {
+    public ResponseEntity<EstabelecimentoResponse> updateEstabelecimento(@PathVariable Long id,
+                                                                         @Valid @RequestBody EstabelecimentoRequest estabelecimentoRequest) {
         Optional<Estabelecimento> estabelecimentoExistente = estabelecimentoRepository.findById(id);
         if (estabelecimentoExistente.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        estabelecimento.setId(estabelecimentoExistente.get().getId());
-        Estabelecimento estabelecimentoAtualizado = estabelecimentoRepository.save(estabelecimento);
-        return new ResponseEntity<>(estabelecimentoAtualizado, HttpStatus.CREATED);
+        EstabelecimentoResponse response = estabelecimentoService.updateEstabelecimento(id, estabelecimentoRequest);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Operation(summary = "Exclui um estabelecimento por ID")
@@ -105,7 +107,8 @@ public class EstabelecimentoController {
         if (estabelecimentoExistente.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        estabelecimentoRepository.deleteById(id);
+
+        estabelecimentoService.deleteEstabelecimento(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

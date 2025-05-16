@@ -71,31 +71,29 @@ public class UsuarioController {
         if (usuario.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(usuarioService.usuarioToResponse(usuario.get(), false), HttpStatus.OK);
+        UsuarioResponse response = usuarioService.findById(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Operation(summary = "Atualiza um usuario existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario encontrado e atualizado com sucesso",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Usuario.class))}),
+                            schema = @Schema(implementation = UsuarioResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Nenhum usuario encontrado para atualizar",
                     content = @Content(schema = @Schema()))
     })
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> updateUsuario(@PathVariable Long id,
-                                                 @Valid @RequestBody UsuarioRequest usuarioRequest) {
+    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable Long id,
+                                                         @Valid @RequestBody UsuarioRequest usuarioRequest) {
         Optional<Usuario> usuarioExistente = usuarioRepository.findById(id);
         if (usuarioExistente.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        Usuario usuarioAtualizado = usuarioService.requestToUsuario(usuarioRequest);
-        usuarioAtualizado.setId(id);
-
-        usuarioRepository.save(usuarioAtualizado);
-        return new ResponseEntity<>(usuarioAtualizado, HttpStatus.CREATED);
+        UsuarioResponse atualizado = usuarioService.updateUsuario(id, usuarioRequest);
+        return new ResponseEntity<>(atualizado, HttpStatus.OK);
     }
 
     @Operation(summary = "Exclui um usuario por ID")
@@ -112,7 +110,8 @@ public class UsuarioController {
         if (usuarioExistente.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        usuarioRepository.deleteById(id);
+
+        usuarioService.deleteUsuario(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

@@ -16,8 +16,8 @@ public class Estabelecimento {
     @JsonManagedReference
     private List<Usuario> usuarios;
 
-    @OneToMany(mappedBy = "estabelecimento")
-    private List<Setores> setores;
+    //@OneToMany(mappedBy = "estabelecimento")
+    //private List<Setores> setores;
 
     public Estabelecimento(){}
 
@@ -53,11 +53,4 @@ public class Estabelecimento {
         this.usuarios = usuarios;
     }
 
-    public List<Setores> getSetores() {
-        return setores;
-    }
-
-    public void setSetores(List<Setores> setores) {
-        this.setores = setores;
-    }
 }
