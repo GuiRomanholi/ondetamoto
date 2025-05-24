@@ -107,7 +107,7 @@ Devido ao relacionamento entre **Estabelecimentos** e **Usuários**, **é necess
 
 - **Guilherme Romanholi Santos - RM557462**
 - **Murilo Capristo - RM556794**
-- **Nicola Guinante Cavalcanti - RM557844**
+- **Nicolas Guinante Cavalcanti - RM557844**
 
 ---
 
