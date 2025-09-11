@@ -20,6 +20,18 @@ public class Setores {
     @OneToMany(mappedBy = "setores")
     private List<Moto> motos;
 
+    public Setores(Long id, String nome, String tamanho, Tipo tipo, Estabelecimento estabelecimento) {
+        this.id = id;
+        this.nome = nome;
+        this.tipo = tipo;
+        this.tamanho = tamanho;
+        this.estabelecimento = estabelecimento;
+    }
+
+    public Setores() {
+    }
+
+
     // Getters e Setters
 
 

@@ -51,7 +51,7 @@ public class MotoController {
     @Operation(summary = "Retorna uma lista de motos")
     @GetMapping
     public ResponseEntity<Page<MotoResponse>> readMotos(@RequestParam(defaultValue = "0") Integer page) {
-        Pageable pageable = PageRequest.of(page, 2, Sort.by("placa").ascending());
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("placa").ascending());
         return new ResponseEntity<>(motoService.findAll(pageable), HttpStatus.OK);
     }
 

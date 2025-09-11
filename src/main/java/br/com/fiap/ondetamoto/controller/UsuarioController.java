@@ -52,7 +52,7 @@ public class UsuarioController {
     @Operation(summary = "Retorna uma lista de usuarios")
     @GetMapping
     public ResponseEntity<Page<UsuarioResponse>> readUsuarios(@RequestParam(defaultValue = "0") Integer page) {
-        Pageable pageable = PageRequest.of(page, 2, Sort.by("email").ascending());
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("email").ascending());
         return new ResponseEntity<>(usuarioService.findAll(pageable), HttpStatus.OK);
     }
 

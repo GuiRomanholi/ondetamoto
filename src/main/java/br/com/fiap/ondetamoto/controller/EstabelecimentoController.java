@@ -53,7 +53,7 @@ public class EstabelecimentoController {
     @Operation(summary = "Retorna uma lista de estabelecimentos")
     @GetMapping
     public ResponseEntity<Page<EstabelecimentoResponse>> readEstabelecimentos(@RequestParam(defaultValue = "0") Integer page) {
-        Pageable pageable = PageRequest.of(page, 2, Sort.by("endereco").ascending());
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("endereco").ascending());
         return new ResponseEntity<>(estabelecimentoService.findAll(pageable), HttpStatus.OK);
     }
 

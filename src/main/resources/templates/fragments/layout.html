@@ -3,74 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>OndeTaMoto?</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-            overflow: hidden;
-        }
-        header {
-            background: #333;
-            color: #fff;
-            padding-top: 30px;
-            min-height: 70px;
-            border-bottom: #77aaff 3px solid;
-            text-align: center;
-        }
-        header a {
-            color: #fff;
-            text-decoration: none;
-            text-transform: uppercase;
-            font-size: 16px;
-        }
-        header ul {
-            padding: 0;
-            list-style: none;
-        }
-        header li {
-            display: inline;
-            padding: 0 20px 0 20px;
-        }
-        nav {
-            margin-top: 10px;
-        }
-        main {
-            padding: 20px;
-            background: #fff;
-            min-height: 500px;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 20px;
-            color: #fff;
-            background-color: #333;
-        }
-    </style>
 </head>
-<body>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #333;">
 
-<header th:fragment="header">
-    <div class="container">
-        <h1>Onde Tem Moto?</h1>
-        <nav>
-            <ul>
-                <li><a th:href="@{/motos/listar}">Motos</a></li>
-                <li><a th:href="@{/usuarios/listar}">Usuários</a></li>
-                <li><a th:href="@{/estabelecimentos/listar}">Estabelecimentos</a></li>
+<header th:fragment="header" style="background-color: #007bff; color: #fff; padding: 25px 0; text-align: center; border-bottom: 3px solid #0056b3;">
+    <div style="max-width: 900px; margin: auto; overflow: hidden;">
+        <h1 style="margin: 0; font-size: 2.5em; font-weight: 600;">OndeTaMoto?</h1>
+        <nav style="margin-top: 15px;">
+            <ul style="list-style: none; padding: 0; display: flex; justify-content: center; gap: 30px; margin: 0;">
+                <li style="display: inline;"><a th:href="@{/motos/listar}" style="color: #fff; text-decoration: none; font-weight: bold; padding: 5px 10px; transition: color 0.3s; font-size: 1.1em;">Motos</a></li>
+                <li style="display: inline;"><a th:href="@{/usuarios/listar}" style="color: #fff; text-decoration: none; font-weight: bold; padding: 5px 10px; transition: color 0.3s; font-size: 1.1em;">Usuários</a></li>
+                <li style="display: inline;"><a th:href="@{/estabelecimentos/listar}" style="color: #fff; text-decoration: none; font-weight: bold; padding: 5px 10px; transition: color 0.3s; font-size: 1.1em;">Estabelecimentos</a></li>
             </ul>
         </nav>
     </div>
 </header>
 
-<footer th:fragment="footer">
-    <p>&copy; 2025 OndeTaMoto. Todos os direitos reservados.</p>
+<footer th:fragment="footer" style="text-align: center; padding: 25px; margin-top: 30px; color: #fff; background-color: #343a40;">
+    <div style="max-width: 900px; margin: auto; overflow: hidden;">
+        <p style="margin: 0;">&copy; 2025 OndeTaMoto. Todos os direitos reservados.</p>
+    </div>
 </footer>
 
 </body>
