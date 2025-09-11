@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulário de Moto</title>
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<main class="container">
+  <h1><span th:text="${moto.id == null} ? 'Cadastrar' : 'Editar'"></span> Moto</h1>
+
+  <form th:action="@{/motos/salvar}" th:object="${moto}" method="post">
+    <input type="hidden" th:field="*{id}" />
+
+    <div>
+      <label for="marca">Marca:</label>
+      <input type="text" id="marca" th:field="*{marca}" required>
+    </div>
+
+    <div>
+      <label for="placa">Placa:</label>
+      <input type="text" id="placa" th:field="*{placa}" required>
+    </div>
+
+    <br/>
+
+    <button type="submit">Salvar</button>
+    <a th:href="@{/motos/listar}">Cancelar</a>
+  </form>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>

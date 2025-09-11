@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Lista de Estabelecimentos</title>
+  <style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    .actions a {
+        margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<main class="container">
+  <h1>Lista de Estabelecimentos</h1>
+
+  <p th:if="${mensagem}" th:text="${mensagem}" style="color: green;"></p>
+
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Endereço</th>
+      <th>Ações</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="estabelecimento : ${estabelecimentos.content}">
+      <td th:text="${estabelecimento.id}"></td>
+      <td th:text="${estabelecimento.endereco}"></td>
+      <td class="actions">
+        <a th:href="@{'/estabelecimentos/editar/' + ${estabelecimento.id}}">Editar</a>
+        <a th:href="@{'/estabelecimentos/excluir/' + ${estabelecimento.id}}"
+           onclick="return confirm('Tem certeza que deseja excluir este estabelecimento?');">Excluir</a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <p><a th:href="@{/estabelecimentos/novo}">Adicionar Novo Estabelecimento</a></p>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>

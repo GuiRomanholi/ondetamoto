@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Formulário de Estabelecimento</title>
+</head>
+<body>
+
+<div th:replace="~{fragments/layout :: header}"></div>
+
+<main class="container">
+  <h1><span th:text="${estabelecimento.id == null} ? 'Cadastrar' : 'Editar'"></span> Estabelecimento</h1>
+
+  <form th:action="@{/estabelecimentos/salvar}" th:object="${estabelecimento}" method="post">
+    <input type="hidden" th:field="*{id}" />
+
+    <div>
+      <label for="endereco">Endereço:</label>
+      <input type="text" id="endereco" th:field="*{endereco}" required>
+    </div>
+
+    <br/>
+
+    <button type="submit">Salvar</button>
+    <a th:href="@{/estabelecimentos/listar}">Cancelar</a>
+  </form>
+</main>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+
+</body>
+</html>
