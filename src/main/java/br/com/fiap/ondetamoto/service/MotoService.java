@@ -1,10 +1,16 @@
 package br.com.fiap.ondetamoto.service;
 
+import br.com.fiap.ondetamoto.controller.EstabelecimentoController;
 import br.com.fiap.ondetamoto.controller.MotoController;
+import br.com.fiap.ondetamoto.controller.SetoresController;
+import br.com.fiap.ondetamoto.dto.EstabelecimentoResponse;
 import br.com.fiap.ondetamoto.dto.MotoRequest;
 import br.com.fiap.ondetamoto.dto.MotoResponse;
+import br.com.fiap.ondetamoto.dto.SetoresResponse;
 import br.com.fiap.ondetamoto.model.Moto;
+import br.com.fiap.ondetamoto.model.Setores;
 import br.com.fiap.ondetamoto.repository.MotoRepository;
+import br.com.fiap.ondetamoto.repository.SetoresRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -14,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -21,16 +28,24 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @Service
 public class MotoService {
     private final MotoRepository motoRepository;
+    private final SetoresRepository setoresRepository;
 
-    public MotoService(MotoRepository motoRepository){
+    public MotoService(MotoRepository motoRepository, SetoresRepository setoresRepository){
         this.motoRepository = motoRepository;
+        this.setoresRepository = setoresRepository;
     }
 
     public Moto requestToMoto(MotoRequest motoRequest) {
-        return new Moto(null,
-                motoRequest.getMarca(),
-                motoRequest.getPlaca(),
-                motoRequest.getTag());
+        Moto moto = new Moto();
+        moto.setMarca(motoRequest.getMarca());
+        moto.setPlaca(motoRequest.getPlaca());
+        moto.setTag(motoRequest.getTag());
+
+        if (motoRequest.getIdSetores() != null) {
+            Optional<Setores> setores = setoresRepository.findById(motoRequest.getIdSetores());
+            setores.ifPresent(moto::setSetores);
+        }
+        return moto;
     }
 
     public MotoResponse motoToResponse(Moto moto, boolean self){
@@ -45,7 +60,27 @@ public class MotoService {
             ).withRel("Lista de Motos");
         }
 
-        return new MotoResponse(moto.getId(), moto.getPlaca(), moto.getMarca(), moto.getTag(), link);
+        SetoresResponse setoresResponse = null;
+        if (moto.getSetores() != null) {
+            // Crie o DTO de Estabelecimento primeiro
+            EstabelecimentoResponse estabelecimentoResponse = new EstabelecimentoResponse(
+                    moto.getSetores().getEstabelecimento().getId(),
+                    moto.getSetores().getEstabelecimento().getEndereco(),
+                    linkTo(methodOn(EstabelecimentoController.class).readEstabelecimento(moto.getSetores().getEstabelecimento().getId())).withSelfRel()
+            );
+
+            // Crie o DTO de Setores sem a lista de motos
+            setoresResponse = new SetoresResponse(
+                    moto.getSetores().getId(),
+                    moto.getSetores().getNome(),
+                    moto.getSetores().getTipo(),
+                    moto.getSetores().getTamanho(),
+                    estabelecimentoResponse,
+                    linkTo(methodOn(SetoresController.class).readSetor(moto.getSetores().getId())).withSelfRel()
+            );
+        }
+
+        return new MotoResponse(moto.getId(), moto.getPlaca(), moto.getMarca(), moto.getTag(), setoresResponse, link);
     }
 
 
@@ -70,6 +105,11 @@ public class MotoService {
         return motoToResponse(moto, false);
     }
 
+    public Moto findMotoById(Long id) {
+        return motoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Moto não encontrada"));
+    }
+
     @CacheEvict(value = {"moto", "motos"}, allEntries = true)
     public void deleteById(Long id) {
         motoRepository.deleteById(id);
@@ -81,11 +121,18 @@ public class MotoService {
         motoExistente.setMarca(motoRequest.getMarca());
         motoExistente.setPlaca(motoRequest.getPlaca());
         motoExistente.setTag(motoRequest.getTag());
-        return motoExistente;
+
+        if (motoRequest.getIdSetores() != null) {
+            Optional<Setores> setores = setoresRepository.findById(motoRequest.getIdSetores());
+            setores.ifPresent(motoExistente::setSetores);
+        }
+
+        return motoRepository.save(motoExistente);
     }
 
     @CacheEvict(value = "motos", allEntries = true)
-    public Moto createMoto(Moto moto) {
+    public Moto createMoto(MotoRequest motoRequest) {
+        Moto moto = requestToMoto(motoRequest);
         return motoRepository.save(moto);
     }
 

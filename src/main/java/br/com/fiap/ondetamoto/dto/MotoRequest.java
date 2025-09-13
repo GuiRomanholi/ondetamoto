@@ -16,6 +16,9 @@ public class MotoRequest {
     private String placa;
     private String tag;
 
+    // Adicione esta linha
+    private Long idSetores;
+
 
     public MotoRequest(){
     }
@@ -48,5 +51,13 @@ public class MotoRequest {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public Long getIdSetores() {
+        return idSetores;
+    }
+
+    public void setIdSetores(Long idSetores) {
+        this.idSetores = idSetores;
     }
 }

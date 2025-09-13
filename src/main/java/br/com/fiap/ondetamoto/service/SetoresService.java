@@ -100,7 +100,7 @@ public class SetoresService {
         setoresRepository.deleteById(id);
     }
 
-    @CachePut(value = "setor", key = "#id")
+    @CacheEvict(value = {"setor", "setores"}, allEntries = true)
     public SetoresResponse updateSetor(Long id, SetoresRequest request) {
         Setores setorExistente = setoresRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Setor não encontrado"));
@@ -116,7 +116,6 @@ public class SetoresService {
         }
 
         Setores setorAtualizado = setoresRepository.save(setorExistente);
-        // Retorna o DTO em vez da entidade, para evitar o ClassCastException no cache
         return setoresToResponse(setorAtualizado, false);
     }
 

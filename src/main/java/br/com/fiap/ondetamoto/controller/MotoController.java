@@ -38,14 +38,15 @@ public class MotoController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Moto cadastrada com sucesso",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Moto.class))}),
+                            schema = @Schema(implementation = MotoResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Atributos informados são inválidos",
-                    content =  @Content(schema = @Schema()))
+                    content = @Content(schema = @Schema()))
     })
     @PostMapping
-    public ResponseEntity<Moto> createMoto(@Valid @RequestBody MotoRequest moto){
-        Moto motoSalva = motoService.createMoto(motoService.requestToMoto(moto));
-        return new ResponseEntity<>(motoSalva, HttpStatus.CREATED);
+    public ResponseEntity<MotoResponse> createMoto(@Valid @RequestBody MotoRequest motoRequest){
+        Moto motoSalva = motoService.createMoto(motoRequest);
+        MotoResponse response = motoService.motoToResponse(motoSalva, true);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Retorna uma lista de motos")
@@ -75,25 +76,20 @@ public class MotoController {
 
     @Operation(summary = "Atualiza uma moto existente")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Moto encontrada e atualizada com sucesso",
+            @ApiResponse(responseCode = "200", description = "Moto encontrada e atualizada com sucesso",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Moto.class))}),
+                            schema = @Schema(implementation = MotoResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Nenhuma moto encontrada para atualizar",
                     content = @Content(schema = @Schema()))
     })
-
     @PutMapping("/{id}")
-    public ResponseEntity<Moto> updateMoto(@PathVariable Long id,
-                                           @Valid @RequestBody MotoRequest motoRequest) {
-        Optional<Moto> motoExistente = motoRepository.findById(id);
-        if (motoExistente.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<MotoResponse> updateMoto(@PathVariable Long id, @Valid @RequestBody MotoRequest motoRequest) {
+        Moto motoExistente = motoService.findMotoById(id);
 
-        Moto motoAtualizada = motoService.updateMotoFromRequest(motoExistente.get(), motoRequest);
-        motoAtualizada = motoRepository.save(motoAtualizada);
+        Moto motoAtualizada = motoService.updateMotoFromRequest(motoExistente, motoRequest);
+        MotoResponse response = motoService.motoToResponse(motoAtualizada, true);
 
-        return new ResponseEntity<>(motoAtualizada, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Operation(summary = "Exclui uma moto por ID")
