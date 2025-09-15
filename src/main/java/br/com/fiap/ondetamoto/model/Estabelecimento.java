@@ -14,7 +14,6 @@ public class Estabelecimento {
 
     @OneToMany(mappedBy = "estabelecimento")
     private List<Usuario> usuarios;
-    
 
     public Estabelecimento(){}
 
