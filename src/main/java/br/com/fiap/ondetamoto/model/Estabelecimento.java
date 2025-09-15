@@ -14,9 +14,7 @@ public class Estabelecimento {
 
     @OneToMany(mappedBy = "estabelecimento")
     private List<Usuario> usuarios;
-
-    //@OneToMany(mappedBy = "estabelecimento")
-    //private List<Setores> setores;
+    
 
     public Estabelecimento(){}
 
