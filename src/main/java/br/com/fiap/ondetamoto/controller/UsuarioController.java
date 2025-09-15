@@ -1,8 +1,11 @@
 package br.com.fiap.ondetamoto.controller;
 
 
+
+import br.com.fiap.ondetamoto.dto.EstabelecimentoResponse;
 import br.com.fiap.ondetamoto.dto.UsuarioRequest;
-import br.com.fiap.ondetamoto.dto.UsuarioResponse;
+import br.com.fiap.ondetamoto.model.Estabelecimento;
+import br.com.fiap.ondetamoto.model.UserRole;
 import br.com.fiap.ondetamoto.model.Usuario;
 import br.com.fiap.ondetamoto.repository.UsuarioRepository;
 import br.com.fiap.ondetamoto.service.UsuarioService;
@@ -14,86 +17,69 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value ="/usuarios", produces = {"application/json"})
-@Tag(name = "api-usuarios")
+@RequestMapping(value = "/usuario", produces = {"application/json"})
+@Tag(name = "api-usuarios", description = "CRUD de Usuarios")
 public class UsuarioController {
+
+    private final UsuarioRepository usuarioRepository;
     @Autowired
-    UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
+
     @Autowired
-    UsuarioService usuarioService;
-
-
-    @Operation(summary = "Criar um novo Usuario")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Usuario cadastrado com sucesso",
-                content = {@Content(mediaType = "application/json",
-                    schema = @Schema(implementation = Usuario.class))}),
-            @ApiResponse(responseCode = "400", description = "Atributos informados são inválidos",
-                content =  @Content(schema = @Schema()))
-    })
-
-    @PostMapping
-    public ResponseEntity<Usuario> createUsuario(@Valid @RequestBody UsuarioRequest usuario){
-        Usuario usuarioSalvo = usuarioRepository.save(usuarioService.requestToUsuario(usuario));
-        return new ResponseEntity<>(usuarioSalvo, HttpStatus.CREATED);
+    public UsuarioController(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
     }
 
-    @Operation(summary = "Retorna uma lista de usuarios")
+    @Operation(summary = "Retorna uma lista de Usuarios")
     @GetMapping
-    public ResponseEntity<Page<UsuarioResponse>> readUsuarios(@RequestParam(defaultValue = "0") Integer page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("email").ascending());
-        return new ResponseEntity<>(usuarioService.findAll(pageable), HttpStatus.OK);
+    public ResponseEntity<List<Usuario>> findAll() {
+        return ResponseEntity.ok(usuarioRepository.findAll());
     }
 
     @Operation(summary = "Retorna um usuario por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario encontrado com sucesso",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UsuarioResponse.class))}),
+                            schema = @Schema(implementation = EstabelecimentoResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Nenhum usuario encontrado",
                     content = @Content(schema = @Schema()))
     })
-
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> readUsuario(@PathVariable Long id) {
+    public ResponseEntity<Usuario> findById(@PathVariable Long id) {
         Optional<Usuario> usuario = usuarioRepository.findById(id);
-        if (usuario.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        UsuarioResponse response = usuarioService.findById(id);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return usuario.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Atualiza um usuario existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario encontrado e atualizado com sucesso",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = UsuarioResponse.class))}),
+                            schema = @Schema(implementation = Estabelecimento.class))}),
             @ApiResponse(responseCode = "400", description = "Nenhum usuario encontrado para atualizar",
                     content = @Content(schema = @Schema()))
     })
-
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable Long id,
-                                                         @Valid @RequestBody UsuarioRequest usuarioRequest) {
-        Optional<Usuario> usuarioExistente = usuarioRepository.findById(id);
-        if (usuarioExistente.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Usuario> update(@PathVariable Long id, @RequestBody @Valid UsuarioRequest request) {
+        Optional<Usuario> optional = usuarioRepository.findById(id);
+        if (optional.isEmpty()) return ResponseEntity.notFound().build();
 
-        UsuarioResponse atualizado = usuarioService.updateUsuario(id, usuarioRequest);
-        return new ResponseEntity<>(atualizado, HttpStatus.OK);
+        Usuario usuarioExistente = optional.get();
+
+        usuarioExistente.setEmail(request.getEmail());
+        usuarioExistente.setSenha(request.getSenha());
+        usuarioExistente.setRole(UserRole.valueOf(request.getRole().toUpperCase()));
+
+        Usuario atualizado = usuarioService.updateUsuario(id, usuarioExistente);
+
+        return ResponseEntity.ok(atualizado);
     }
 
     @Operation(summary = "Exclui um usuario por ID")
@@ -103,16 +89,10 @@ public class UsuarioController {
             @ApiResponse(responseCode = "204", description = "Usuario excluído com sucesso",
                     content = @Content(schema = @Schema()))
     })
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
-        Optional<Usuario> usuarioExistente = usuarioRepository.findById(id);
-        if (usuarioExistente.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        usuarioService.deleteUsuario(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (!usuarioRepository.existsById(id)) return ResponseEntity.notFound().build();
+        usuarioRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
-
 }

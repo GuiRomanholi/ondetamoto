@@ -13,7 +13,6 @@ public class Estabelecimento {
     private String endereco;
 
     @OneToMany(mappedBy = "estabelecimento")
-    @JsonManagedReference
     private List<Usuario> usuarios;
 
     //@OneToMany(mappedBy = "estabelecimento")

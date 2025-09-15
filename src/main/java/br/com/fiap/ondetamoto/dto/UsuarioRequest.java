@@ -9,27 +9,19 @@ import jakarta.validation.constraints.Size;
 
 public class UsuarioRequest {
 
-    @NotBlank(message = "O Email é Obrigatório")
-    @Email(message = "Escreva um email Válido")
-    @Size(min = 3, max = 80, message = "O nome deve ter entre 3 e 80 caracteres")
+    @NotBlank(message = "O e-mail é obrigatório")
+    @Email(message = "E-mail inválido")
     private String email;
 
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,25}$",
-    message = "A senha deve ter entre 8 e 25 caracteres, conter ao menos uma letra maiúscula e um número, e não pode ter caracteres especiais.")
-    @NotBlank(message = "A senha é Obrigatória")
+            message = "A senha deve ter entre 8 e 25 caracteres, conter ao menos uma letra maiúscula e um número, e não pode ter caracteres especiais.")
+    @NotBlank(message = "A senha é obrigatória")
     private String senha;
 
-    private Long idEstabelecimento;
+    @NotBlank(message = "A role é obrigatória")
+    private String role;
 
-    public UsuarioRequest(){
-    }
-
-    public UsuarioRequest(String email, String senha, Long idEstabelecimento){
-        this.email = email;
-        this.senha = senha;
-        this.idEstabelecimento = idEstabelecimento;
-    }
-
+    // Getters e Setters
     public String getEmail() {
         return email;
     }
@@ -46,11 +38,11 @@ public class UsuarioRequest {
         this.senha = senha;
     }
 
-    public Long getIdEstabelecimento() {
-        return idEstabelecimento;
+    public String getRole() {
+        return role;
     }
 
-    public void setIdEstabelecimento(Long idEstabelecimento) {
-        this.idEstabelecimento = idEstabelecimento;
+    public void setRole(String role) {
+        this.role = role;
     }
 }

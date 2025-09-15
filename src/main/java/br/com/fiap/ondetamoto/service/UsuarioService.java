@@ -1,108 +1,77 @@
 package br.com.fiap.ondetamoto.service;
 
-import br.com.fiap.ondetamoto.controller.EstabelecimentoController;
-import br.com.fiap.ondetamoto.controller.UsuarioController;
-import br.com.fiap.ondetamoto.dto.EstabelecimentoResponse;
-import br.com.fiap.ondetamoto.dto.UsuarioRequest;
-import br.com.fiap.ondetamoto.dto.UsuarioResponse;
-import br.com.fiap.ondetamoto.model.Estabelecimento;
+
 import br.com.fiap.ondetamoto.model.Usuario;
-import br.com.fiap.ondetamoto.repository.EstabelecimentoRepository;
 import br.com.fiap.ondetamoto.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.Link;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import java.util.Optional;
 
 @Service
 public class UsuarioService {
-
     private final UsuarioRepository usuarioRepository;
-    private final EstabelecimentoRepository estabelecimentoRepository;
-
-    public UsuarioService(UsuarioRepository usuarioRepository, EstabelecimentoRepository estabelecimentoRepository){
+    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
-        this.estabelecimentoRepository = estabelecimentoRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public Usuario requestToUsuario(UsuarioRequest usuarioRequest) {
-        Usuario usuario = new Usuario(null,
-                usuarioRequest.getEmail(),
-                usuarioRequest.getSenha());
-
-        if (usuarioRequest.getIdEstabelecimento() != null) {
-            estabelecimentoRepository.findById(usuarioRequest.getIdEstabelecimento())
-                    .ifPresent(usuario::setEstabelecimento);
-        }
-
-        return usuario;
-    }
-
-    public UsuarioResponse usuarioToResponse(Usuario usuario, boolean self) {
-        Link selfLink = self
-                ? linkTo(methodOn(UsuarioController.class).readUsuario(usuario.getId())).withSelfRel()
-                : linkTo(methodOn(UsuarioController.class).readUsuarios(0)).withRel("Lista de Usuarios");
-
-        EstabelecimentoResponse estabelecimentoResponse = null;
-        if (usuario.getEstabelecimento() != null) {
-            Estabelecimento est = usuario.getEstabelecimento();
-            Link estLink = linkTo(methodOn(EstabelecimentoController.class).readEstabelecimento(est.getId()))
-                    .withSelfRel();
-            estabelecimentoResponse = new EstabelecimentoResponse(est.getId(), est.getEndereco(), estLink);
-        }
-
-        return new UsuarioResponse(usuario.getId(), usuario.getEmail(), estabelecimentoResponse, selfLink);
-    }
-
-
-    public List<UsuarioResponse> usuariosToResponse(List<Usuario> usuarios) {
-        List<UsuarioResponse> usuariosResponse = new ArrayList<>();
-        for (Usuario usuario : usuarios) {
-            usuariosResponse.add(usuarioToResponse(usuario, true));
-        }
-        return usuariosResponse;
-    }
-
-    public Page<UsuarioResponse> findAll(Pageable pageable) {
-        return usuarioRepository.findAll(pageable)
-                .map(usuario -> usuarioToResponse(usuario, true));
+    @Transactional
+    @CachePut(value = "usuarios", key = "#result.id")
+    public Usuario createUsuario(Usuario usuario) {
+        return usuarioRepository.save(usuario);
     }
 
     @Cacheable(value = "usuarios", key = "#id")
-    public UsuarioResponse findById(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        return usuarioToResponse(usuario, false);
+    public Usuario readUsuarioById(Long id) {
+        return usuarioRepository.findById(id).orElse(null);
     }
 
+    @Cacheable(value = "usuarios", key = "'todos'")
+    public List<Usuario> readUsuarios() {
+        return usuarioRepository.findAll();
+    }
+
+    @Transactional
+    @CachePut(value = "usuarios", key = "#result.id")
+    public Usuario updateUsuario(Long id, Usuario usuarioAtualizado) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
+        if (usuarioOptional.isEmpty()) {
+            return null;
+        }
+
+        Usuario usuarioExistente = usuarioOptional.get();
+
+        usuarioAtualizado.setId(id);
+
+        if (!passwordEncoder.matches(usuarioAtualizado.getSenha(), usuarioExistente.getSenha())) {
+            usuarioAtualizado.setSenha(passwordEncoder.encode(usuarioAtualizado.getSenha()));
+        } else {
+            usuarioAtualizado.setSenha(usuarioExistente.getSenha());
+        }
+
+        return usuarioRepository.save(usuarioAtualizado);
+    }
+
+    @Transactional
     @CacheEvict(value = "usuarios", key = "#id")
     public void deleteUsuario(Long id) {
         usuarioRepository.deleteById(id);
+        limparCacheTodosUsuarios();
     }
 
-    @CachePut(value = "usuarios", key = "#id")
-    public UsuarioResponse updateUsuario(Long id, UsuarioRequest request) {
-        Usuario existente = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    @CacheEvict(value = "usuarios", key = "'todos'")
+    public void limparCacheTodosUsuarios() {}
 
-        if (request.getEmail() != null) existente.setEmail(request.getEmail());
-        if (request.getSenha() != null) existente.setSenha(request.getSenha());
+    @CacheEvict(value = "usuarios", allEntries = true)
+    public void limparTodoCacheUsuarios() {}
 
-        if (request.getIdEstabelecimento() != null) {
-            estabelecimentoRepository.findById(request.getIdEstabelecimento())
-                    .ifPresent(existente::setEstabelecimento);
-        }
-
-        Usuario atualizado = usuarioRepository.save(existente);
-        return usuarioToResponse(atualizado, false);
-    }
 }
