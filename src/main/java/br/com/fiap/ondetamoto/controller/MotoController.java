@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value ="/motos", produces = {"application/json"})
+@RequestMapping(value ="/api/motos", produces = {"application/json"})
 @Tag(name = "api-motos")
 public class MotoController {
 

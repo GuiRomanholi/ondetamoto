@@ -1,9 +1,9 @@
 package br.com.fiap.ondetamoto.controller;
 
-
 import br.com.fiap.ondetamoto.dto.AuthDTO;
 import br.com.fiap.ondetamoto.dto.RegisterDTO;
-import br.com.fiap.ondetamoto.model.Usuario;
+import br.com.fiap.ondetamoto.model.Usuario; // Certifique-se que seu Usuario tem o enum UserRole
+import br.com.fiap.ondetamoto.model.UserRole; // Importe seu enum
 import br.com.fiap.ondetamoto.repository.UsuarioRepository;
 import br.com.fiap.ondetamoto.service.TokenService;
 import jakarta.validation.Valid;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -41,15 +41,36 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterDTO registerDTO) {
         if (usuarioRepository.findByEmail(registerDTO.email()) != null) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Email já cadastrado.");
         }
+
         String senhaCriptografada = new BCryptPasswordEncoder()
                 .encode(registerDTO.senha());
+
+        UserRole role;
+        try {
+            role = UserRole.valueOf(registerDTO.role().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Role inválida. As roles permitidas são: " + getAllowedRolesString());
+        }
+
         Usuario novoUsuario = new Usuario(
                 registerDTO.email(),
                 senhaCriptografada,
-                registerDTO.role());
+                role);
+
         usuarioRepository.save(novoUsuario);
         return ResponseEntity.ok().build();
+    }
+
+    private String getAllowedRolesString() {
+        StringBuilder allowedRoles = new StringBuilder();
+        for (UserRole r : UserRole.values()) {
+            allowedRoles.append(r.name()).append(", ");
+        }
+        if (allowedRoles.length() > 0) {
+            allowedRoles.setLength(allowedRoles.length() - 2);
+        }
+        return allowedRoles.toString();
     }
 }

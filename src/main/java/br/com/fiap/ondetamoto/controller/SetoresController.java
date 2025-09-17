@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional; // Importação necessária
 
 @RestController
-@RequestMapping(value = "/setores", produces = {"application/json"})
+@RequestMapping(value = "/api/setores", produces = {"application/json"})
 @Tag(name = "api-setores")
 public class SetoresController {
 
