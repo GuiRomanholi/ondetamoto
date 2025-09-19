@@ -1,15 +1,16 @@
 package br.com.fiap.ondetamoto.controller;
 
-import br.com.fiap.ondetamoto.model.Setores;
-import br.com.fiap.ondetamoto.repository.SetoresRepository;
 import br.com.fiap.ondetamoto.model.Estabelecimento;
+import br.com.fiap.ondetamoto.model.Setores;
 import br.com.fiap.ondetamoto.repository.EstabelecimentoRepository;
+import br.com.fiap.ondetamoto.service.SetoresService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -20,53 +21,57 @@ import java.util.Optional;
 public class SetoresWebController {
 
     @Autowired
-    private SetoresRepository setoresRepository;
+    private SetoresService setoresService;
 
     @Autowired
     private EstabelecimentoRepository estabelecimentoRepository;
 
     @GetMapping("/listar")
     public String listarSetores(Model model) {
-        Page<Setores> setores = setoresRepository.findAll(PageRequest.of(0, 10));
+        Page<Setores> setores = setoresService.findAllRaw(PageRequest.of(0, 10));
         model.addAttribute("setores", setores);
         return "setores/listar_setores";
     }
 
     @GetMapping("/novo")
-    public String exibirFormulario(Model model) {
+    public String exibirFormularioNovo(Model model) {
         model.addAttribute("setor", new Setores());
         model.addAttribute("estabelecimentos", estabelecimentoRepository.findAll());
         return "setores/form_setores";
     }
 
     @PostMapping("/salvar")
-    public String salvarSetor(@Valid @ModelAttribute("setor") Setores setor, RedirectAttributes redirectAttributes) {
+    public String salvarSetor(@Valid @ModelAttribute("setor") Setores setor,
+                              BindingResult result,
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            model.addAttribute("estabelecimentos", estabelecimentoRepository.findAll());
+            model.addAttribute("setor", setor);
+            return "setores/form_setores";
+        }
+
         try {
-            // Se o setor tiver um ID, ele está sendo editado. Busque o estabelecimento existente.
-            if (setor.getId() != null) {
-                Optional<Setores> setorExistente = setoresRepository.findById(setor.getId());
-                if (setorExistente.isPresent()) {
-                    setor.setEstabelecimento(setorExistente.get().getEstabelecimento());
-                }
+            if (setor.getEstabelecimento() != null && setor.getEstabelecimento().getId() != null) {
+                Optional<Estabelecimento> est = estabelecimentoRepository.findById(setor.getEstabelecimento().getId());
+                est.ifPresent(setor::setEstabelecimento);
             }
 
-            Optional<Estabelecimento> estabelecimentoOptional = estabelecimentoRepository.findById(setor.getEstabelecimento().getId());
-            if (estabelecimentoOptional.isPresent()) {
-                setor.setEstabelecimento(estabelecimentoOptional.get());
-                setoresRepository.save(setor);
-                redirectAttributes.addFlashAttribute("mensagem", "Setor salvo com sucesso!");
-            } else {
-                redirectAttributes.addFlashAttribute("erro", "Estabelecimento não encontrado.");
-            }
+            setoresService.saveRaw(setor); // 🔹 agora usa o service (cache limpo)
+
+            redirectAttributes.addFlashAttribute("mensagem", "Setor salvo com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao salvar o setor: " + e.getMessage());
+            model.addAttribute("estabelecimentos", estabelecimentoRepository.findAll());
+            return "setores/form_setores";
         }
+
         return "redirect:/setores/listar";
     }
 
     @GetMapping("/editar/{id}")
     public String exibirFormularioEdicao(@PathVariable Long id, Model model) {
-        Optional<Setores> setorOptional = setoresRepository.findById(id);
+        Optional<Setores> setorOptional = setoresService.findByIdRaw(id);
         if (setorOptional.isPresent()) {
             model.addAttribute("setor", setorOptional.get());
             model.addAttribute("estabelecimentos", estabelecimentoRepository.findAll());
@@ -76,17 +81,13 @@ public class SetoresWebController {
         return "setores/form_setores";
     }
 
-    @GetMapping("/excluir/{id}")
+    @PostMapping("/excluir/{id}")
     public String excluirSetor(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            if (setoresRepository.existsById(id)) {
-                setoresRepository.deleteById(id);
-                redirectAttributes.addFlashAttribute("mensagem", "Setor excluído com sucesso!");
-            } else {
-                redirectAttributes.addFlashAttribute("erro", "Setor não encontrado.");
-            }
+            setoresService.deleteById(id); // 🔹 usa o service (cache limpo)
+            redirectAttributes.addFlashAttribute("mensagem", "Setor excluído com sucesso!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao excluir o setor: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao excluir o setor.");
         }
         return "redirect:/setores/listar";
     }

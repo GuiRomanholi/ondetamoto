@@ -32,7 +32,7 @@ public class ApiSecurityConfigurations {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN") // Exemplo: mude para o endpoint corrigido
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

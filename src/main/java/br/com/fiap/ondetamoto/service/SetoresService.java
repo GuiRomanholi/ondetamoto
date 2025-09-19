@@ -74,6 +74,20 @@ public class SetoresService {
         );
     }
 
+    // 🔹 Retorna entidade pura para usar no Thymeleaf
+    public Page<Setores> findAllRaw(Pageable pageable) {
+        return setoresRepository.findAll(pageable);
+    }
+
+    public Optional<Setores> findByIdRaw(Long id) {
+        return setoresRepository.findById(id);
+    }
+
+    @CacheEvict(value = {"setor", "setores"}, allEntries = true)
+    public Setores saveRaw(Setores setor) {
+        return setoresRepository.save(setor);
+    }
+
     public List<SetoresResponse> setoresToResponse(List<Setores> setores) {
         List<SetoresResponse> setoresResponse = new ArrayList<>();
         for (Setores setor : setores) {

@@ -12,6 +12,7 @@
     <h1 style="font-size: 1.8em; color: #007bff; margin-bottom: 20px; text-align: center;">Lista de Setores</h1>
 
     <p th:if="${mensagem}" th:text="${mensagem}" style="color: green; text-align: center;"></p>
+    <p th:if="${erro}" th:text="${erro}" style="color: red; text-align: center;"></p>
 
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
         <thead>
@@ -26,21 +27,36 @@
         </thead>
         <tbody>
         <tr th:each="setor : ${setores.content}" style="border: 1px solid #ddd;">
-            <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${setor.id}"></td>
-            <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${setor.nome}"></td>
-            <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${setor.tipo}"></td>
-            <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${setor.tamanho}"></td>
-            <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${setor.estabelecimento.endereco}"></td>
-            <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
-                <a th:href="@{'/setores/editar/' + ${setor.id}}" style="color: #007bff; text-decoration: none; margin-right: 10px;">Editar</a>
-                <a th:href="@{'/setores/excluir/' + ${setor.id}}" style="color: #dc3545; text-decoration: none;"
-                   onclick="return confirm('Tem certeza que deseja excluir este setor?');">Excluir</a>
+            <td th:text="${setor.id}" style="border: 1px solid #ddd; padding: 8px;"></td>
+            <td th:text="${setor.nome}" style="border: 1px solid #ddd; padding: 8px;"></td>
+            <td th:text="${setor.tipo}" style="border: 1px solid #ddd; padding: 8px;"></td>
+            <td th:text="${setor.tamanho}" style="border: 1px solid #ddd; padding: 8px;"></td>
+            <td th:text="${setor.estabelecimento.endereco}" style="border: 1px solid #ddd; padding: 8px;"></td>
+            <td style="border: 1px solid #ddd; padding: 8px;">
+                <a th:href="@{'/setores/editar/' + ${setor.id}}"
+                   style="color: #007bff; text-decoration: none; margin-right: 10px;">Editar</a>
+
+                <!-- 🔹 Exclusão com DELETE escondido -->
+                <form th:action="@{/setores/excluir/{id}(id=${setor.id})}" method="post" style="display:inline;">
+                    <input type="hidden" name="_method" value="delete"/>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit"
+                            style="color: #dc3545; background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline;"
+                            onclick="return confirm('Tem certeza que deseja excluir este setor?');">
+                        Excluir
+                    </button>
+                </form>
             </td>
         </tr>
         </tbody>
     </table>
 
-    <p style="text-align: center; margin-top: 20px;"><a th:href="@{/setores/novo}" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: #fff; border-radius: 5px; text-decoration: none;">Adicionar Novo Setor</a></p>
+    <p style="text-align: center; margin-top: 20px;">
+        <a th:href="@{/setores/novo}"
+           style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: #fff; border-radius: 5px; text-decoration: none;">
+            Adicionar Novo Setor
+        </a>
+    </p>
 </main>
 
 <div th:replace="~{fragments/layout :: footer}"></div>
