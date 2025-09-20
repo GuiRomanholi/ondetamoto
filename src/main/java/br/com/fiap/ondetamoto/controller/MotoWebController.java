@@ -73,7 +73,7 @@ public class MotoWebController {
         return "moto/form_moto";
     }
 
-    @GetMapping("/excluir/{id}")
+    @PostMapping("/excluir/{id}")
     public String excluirMoto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             if (motoService.findByIdRaw(id).isPresent()) {

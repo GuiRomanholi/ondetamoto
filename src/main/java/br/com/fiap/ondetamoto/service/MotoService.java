@@ -110,7 +110,7 @@ public class MotoService {
                 .orElseThrow(() -> new RuntimeException("Moto não encontrada"));
     }
 
-    @CacheEvict(value = {"moto", "motos"}, allEntries = true)
+    @CacheEvict(value = {"motos", "moto", "motosRaw", "motoRaw"}, allEntries = true)
     public void deleteById(Long id) {
         motoRepository.deleteById(id);
     }

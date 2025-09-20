@@ -57,7 +57,7 @@ public class SetoresWebController {
                 est.ifPresent(setor::setEstabelecimento);
             }
 
-            setoresService.saveRaw(setor); // 🔹 agora usa o service (cache limpo)
+            setoresService.saveRaw(setor);
 
             redirectAttributes.addFlashAttribute("mensagem", "Setor salvo com sucesso!");
         } catch (Exception e) {
@@ -84,7 +84,7 @@ public class SetoresWebController {
     @PostMapping("/excluir/{id}")
     public String excluirSetor(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            setoresService.deleteById(id); // 🔹 usa o service (cache limpo)
+            setoresService.deleteById(id);
             redirectAttributes.addFlashAttribute("mensagem", "Setor excluído com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao excluir o setor.");
