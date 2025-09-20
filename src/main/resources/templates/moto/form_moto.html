@@ -25,6 +25,12 @@
     </div>
 
     <div style="margin-bottom: 15px;">
+      <label for="tag" style="display: block; margin-bottom: 5px; font-weight: bold;">Tag:</label>
+      <input type="text" id="tag" th:field="*{tag}"
+             style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+    </div>
+
+    <div style="margin-bottom: 15px;">
       <label for="setores" style="display: block; margin-bottom: 5px; font-weight: bold;">Setor:</label>
       <select id="setores" th:field="*{setores}" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
         <option value="">-- Selecione um Setor --</option>

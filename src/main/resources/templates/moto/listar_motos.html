@@ -19,6 +19,7 @@
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">ID</th>
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Marca</th>
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Placa</th>
+      <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Tag</th>
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Setor</th>
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Ações</th>
     </tr>
@@ -28,6 +29,7 @@
       <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${moto.id}"></td>
       <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${moto.marca}"></td>
       <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${moto.placa}"></td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${moto.tag != null ? moto.tag : 'Sem tag'}"></td>
       <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${moto.setores != null ? moto.setores.nome : 'Sem setor'}"></td>
       <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
         <a th:href="@{'/motos/editar/' + ${moto.id}}" style="color: #007bff; text-decoration: none; margin-right: 10px;">Editar</a>
