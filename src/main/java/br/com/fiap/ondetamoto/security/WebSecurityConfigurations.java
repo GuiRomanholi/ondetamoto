@@ -26,7 +26,7 @@ public class WebSecurityConfigurations {
                         // Configura o nome dos campos de email e senha para corresponder ao seu HTML
                         .usernameParameter("email")
                         .passwordParameter("senha")
-                        .defaultSuccessUrl("/motos/listar", true)
+                        .defaultSuccessUrl("/estabelecimentos/listar", true)
                         .permitAll()
                 )
                 .logout(logout -> logout

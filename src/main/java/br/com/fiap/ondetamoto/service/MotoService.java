@@ -136,6 +136,21 @@ public class MotoService {
         return motoRepository.save(moto);
     }
 
+    @Cacheable(value = "motosRaw", key = "#pageable.pageNumber")
+    public Page<Moto> findAllRaw(Pageable pageable) {
+        return motoRepository.findAll(pageable);
+    }
+
+    @Cacheable(value = "motoRaw", key = "#id")
+    public Optional<Moto> findByIdRaw(Long id) {
+        return motoRepository.findById(id);
+    }
+
+    @CacheEvict(value = {"motos", "moto", "motosRaw", "motoRaw"}, allEntries = true)
+    public Moto saveRaw(Moto moto) {
+        return motoRepository.save(moto);
+    }
+
     @CacheEvict(value = {"motos", "moto"}, allEntries = true)
     public void deleteMoto(Long id) {
         motoRepository.deleteById(id);

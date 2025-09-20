@@ -19,6 +19,7 @@
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">ID</th>
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Marca</th>
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Placa</th>
+      <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Setor</th>
       <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Ações</th>
     </tr>
     </thead>
@@ -27,6 +28,7 @@
       <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${moto.id}"></td>
       <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${moto.marca}"></td>
       <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${moto.placa}"></td>
+      <td style="border: 1px solid #ddd; padding: 8px; text-align: left;" th:text="${moto.setores != null ? moto.setores.nome : 'Sem setor'}"></td>
       <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">
         <a th:href="@{'/motos/editar/' + ${moto.id}}" style="color: #007bff; text-decoration: none; margin-right: 10px;">Editar</a>
         <a th:href="@{'/motos/excluir/' + ${moto.id}}" style="color: #dc3545; text-decoration: none;"
@@ -36,7 +38,9 @@
     </tbody>
   </table>
 
-  <p style="text-align: center; margin-top: 20px;"><a th:href="@{/motos/novo}" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: #fff; border-radius: 5px; text-decoration: none;">Adicionar Nova Moto</a></p>
+  <p style="text-align: center; margin-top: 20px;">
+    <a th:href="@{/motos/novo}" style="display: inline-block; padding: 10px 15px; background-color: #007bff; color: #fff; border-radius: 5px; text-decoration: none;">Adicionar Nova Moto</a>
+  </p>
 </main>
 
 <div th:replace="~{fragments/layout :: footer}"></div>
