@@ -23,7 +23,6 @@ public class WebSecurityConfigurations {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        // Configura o nome dos campos de email e senha para corresponder ao seu HTML
                         .usernameParameter("email")
                         .passwordParameter("senha")
                         .defaultSuccessUrl("/estabelecimentos/listar", true)
@@ -31,6 +30,9 @@ public class WebSecurityConfigurations {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .clearAuthentication(true)
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
