@@ -46,7 +46,6 @@ public class AuthWebController {
         headers.add("Content-Type", "application/json");
 
         try {
-            // Note: O endpoint da API é `/api/auth/register`, não apenas `/auth/register` como estava no seu código original do RegisterWebController.
             ResponseEntity<Void> response = restTemplate.postForEntity(
                     REGISTER_API_URL,
                     new org.springframework.http.HttpEntity<>(registerDTO, headers),

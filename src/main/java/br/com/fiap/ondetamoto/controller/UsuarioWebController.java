@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,9 @@ public class UsuarioWebController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/listar")
     public String listarUsuarios(Model model) {
@@ -37,6 +41,8 @@ public class UsuarioWebController {
     @PostMapping("/salvar")
     public String salvarUsuario(@Valid @ModelAttribute("usuario") Usuario usuario, RedirectAttributes redirectAttributes) {
         try {
+            usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+
             usuarioRepository.save(usuario);
             redirectAttributes.addFlashAttribute("mensagem", "Usuário salvo com sucesso!");
         } catch (Exception e) {
