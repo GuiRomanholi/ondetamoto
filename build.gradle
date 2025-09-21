@@ -28,10 +28,15 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+	// Flyway
+	implementation 'org.flywaydb:flyway-core'
+	//implementation 'org.flywaydb:flyway-database-postgresql'
+	//implementation 'org.flywaydb:flyway-database-mysql'
+	//implementation 'org.flywaydb:flyway-database-oracle'
+
 	runtimeOnly 'com.h2database:h2'
-	// Spring Boot DevTools (reload automático em dev)
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	//n sei que isso mas
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

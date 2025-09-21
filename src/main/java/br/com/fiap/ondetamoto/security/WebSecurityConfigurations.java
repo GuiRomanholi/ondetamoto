@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@Order(2) // Executado depois do filtro da API
+@Order(2)
 public class WebSecurityConfigurations {
 
     @Bean
