@@ -6,6 +6,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+
 
 @Configuration
 @Order(2)
@@ -13,12 +15,15 @@ public class WebSecurityConfigurations {
 
     @Bean
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http
+        http
                 .authorizeHttpRequests(authorize -> authorize
                         // Acesso público para URLs web
                         .requestMatchers(HttpMethod.GET, "/login", "/register", "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/register").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+
+                        .requestMatchers("/h2-console/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -35,7 +40,11 @@ public class WebSecurityConfigurations {
                         .clearAuthentication(true)
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
-                )
-                .build();
+                );
+
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"));
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+
+        return http.build();
     }
 }
