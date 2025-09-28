@@ -1,6 +1,8 @@
 package br.com.fiap.ondetamoto.service;
 
 
+import br.com.fiap.ondetamoto.dto.RegisterDTO;
+import br.com.fiap.ondetamoto.model.UserRole;
 import br.com.fiap.ondetamoto.model.Usuario;
 import br.com.fiap.ondetamoto.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,24 @@ public class UsuarioService {
     public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @Transactional
+    public Usuario registerUser(RegisterDTO data) {
+        // 1. Verificação de e-mail (continua igual)
+        if (usuarioRepository.findByEmail(data.email()) != null) {
+            throw new EmailAlreadyExistsException("Este e-mail já está cadastrado.");
+        }
+
+        // 2. Criptografia de senha (continua igual)
+        String encryptedPassword = passwordEncoder.encode(data.senha());
+
+        // Conversão manual da String para o Enum
+        UserRole userRoleEnum = UserRole.valueOf(data.role().toUpperCase());
+
+        Usuario newUser = new Usuario(data.email(), encryptedPassword, userRoleEnum);
+
+        return usuarioRepository.save(newUser);
     }
 
     @Transactional
