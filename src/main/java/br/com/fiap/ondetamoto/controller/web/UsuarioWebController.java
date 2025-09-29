@@ -1,4 +1,4 @@
-package br.com.fiap.ondetamoto.controller;
+package br.com.fiap.ondetamoto.controller.web;
 
 import br.com.fiap.ondetamoto.model.Usuario;
 import br.com.fiap.ondetamoto.repository.UsuarioRepository;

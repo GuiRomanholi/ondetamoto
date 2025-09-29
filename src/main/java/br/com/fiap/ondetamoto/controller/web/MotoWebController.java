@@ -1,4 +1,4 @@
-package br.com.fiap.ondetamoto.controller;
+package br.com.fiap.ondetamoto.controller.web;
 
 import br.com.fiap.ondetamoto.model.Moto;
 import br.com.fiap.ondetamoto.model.Setores;
