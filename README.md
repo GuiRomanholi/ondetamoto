@@ -44,7 +44,7 @@ Crie um **Estabelecimento** antes de criar um **Setor** e crie um **Setor** ante
 
 ### 👤 Usuários
 - `GET /api/usuarios` – Lista de usuários  
-- `POST /api/usuarios` – Cadastro de usuário  
+- `POST /api/auth/register` – Cadastro de usuário  
 - `GET /api/usuarios/{id}` – Detalhes de um usuário  
 - `DELETE /api/usuarios/{id}` – Remove um usuário
 - `PUT /api/usuarios/{id}` – Altera um usuário 
@@ -70,7 +70,7 @@ Crie um **Estabelecimento** antes de criar um **Setor** e crie um **Setor** ante
 ---
 
 ## Rotas recomendadas para o Teste:
-#### Exemplo 1: `POST` (Registrar Usuário)
+#### Exemplo 1: (Registrar Usuário)
 
 ```bash
 {
@@ -79,8 +79,16 @@ Crie um **Estabelecimento** antes de criar um **Setor** e crie um **Setor** ante
     "role": "ADMIN"
 }
 ```
+#### Exemplo 1.5: (Logar Usuário)
 
-#### Exemplo 2: `POST` (Criar Estabelecimento)
+```bash
+{
+    "email": "henriquechaco@gmail.com",
+    "senha": "SenhaForte123"
+}
+```
+
+#### Exemplo 2: (Criar Estabelecimento)
 
 ```bash
 {
@@ -89,7 +97,7 @@ Crie um **Estabelecimento** antes de criar um **Setor** e crie um **Setor** ante
 }
 ```
 
-#### Exemplo 3: `POST` (Criar Setor)
+#### Exemplo 3: (Criar Setor)
 
 ```bash
 {
@@ -100,7 +108,7 @@ Crie um **Estabelecimento** antes de criar um **Setor** e crie um **Setor** ante
 }
 ```
 
-#### Exemplo 4: `POST` (Adicionar Moto)
+#### Exemplo 4: (Adicionar Moto)
 
 
 ```bash
