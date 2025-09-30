@@ -61,7 +61,11 @@ public class SetoresService {
         if (setores.getEstabelecimento() != null) {
             Estabelecimento est = setores.getEstabelecimento();
             Link estLink = linkTo(methodOn(EstabelecimentoController.class).readEstabelecimento(est.getId())).withSelfRel();
-            estabelecimentoResponse = new EstabelecimentoResponse(est.getId(), est.getEndereco(), estLink);
+
+            String usuarioEmail = (est.getUsuario() != null) ? est.getUsuario().getEmail() : null;
+
+            estabelecimentoResponse = new EstabelecimentoResponse(est.getId(), est.getEndereco(), usuarioEmail, estLink);
+
         }
 
         return new SetoresResponse(
@@ -74,7 +78,6 @@ public class SetoresService {
         );
     }
 
-    // 🔹 Retorna entidade pura para usar no Thymeleaf
     public Page<Setores> findAllRaw(Pageable pageable) {
         return setoresRepository.findAll(pageable);
     }

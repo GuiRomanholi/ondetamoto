@@ -1,5 +1,6 @@
 package br.com.fiap.ondetamoto.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -12,8 +13,10 @@ public class Estabelecimento {
     private Long id;
     private String endereco;
 
-    @OneToMany(mappedBy = "estabelecimento")
-    private List<Usuario> usuarios;
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    @JsonBackReference
+    private Usuario usuario;
 
     public Estabelecimento(){}
 
@@ -41,12 +44,11 @@ public class Estabelecimento {
         this.endereco = endereco;
     }
 
-    public List<Usuario> getUsuarios() {
-        return usuarios;
+    public Usuario getUsuario() {
+        return usuario;
     }
 
-    public void setUsuarios(List<Usuario> usuarios) {
-        this.usuarios = usuarios;
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
-
 }

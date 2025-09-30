@@ -1,6 +1,7 @@
 package br.com.fiap.ondetamoto.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.apache.catalina.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,9 +21,10 @@ public class Usuario implements UserDetails  {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
-    @ManyToOne
-    @JoinColumn(name = "estabelecimento_id")
-    private Estabelecimento estabelecimento;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Estabelecimento> estabelecimentos;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -100,12 +102,12 @@ public class Usuario implements UserDetails  {
         this.senha = senha;
     }
 
-    public Estabelecimento getEstabelecimento() {
-        return estabelecimento;
+    public List<Estabelecimento> getEstabelecimentos() {
+        return estabelecimentos;
     }
 
-    public void setEstabelecimento(Estabelecimento estabelecimento) {
-        this.estabelecimento = estabelecimento;
+    public void setEstabelecimentos(List<Estabelecimento> estabelecimentos) {
+        this.estabelecimentos = estabelecimentos;
     }
 
     public UserRole getRole() {

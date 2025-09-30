@@ -19,6 +19,16 @@
       <input type="text" id="endereco" th:field="*{endereco}" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
     </div>
 
+    <div style="margin-bottom: 15px;">
+      <label for="usuario" style="display: block; margin-bottom: 5px; font-weight: bold;">Usuário Responsável:</label>
+      <select id="usuario" th:field="*{usuario}" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        <option value="">Selecione um usuário</option>
+        <option th:each="user : ${allUsuarios}"
+                th:value="${user.id}"
+                th:text="${user.email}"></option>
+      </select>
+    </div>
+
     <br/>
 
     <button type="submit" style="padding: 10px 15px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Salvar</button>

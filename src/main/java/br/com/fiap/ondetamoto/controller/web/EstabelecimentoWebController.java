@@ -2,6 +2,7 @@ package br.com.fiap.ondetamoto.controller.web;
 
 import br.com.fiap.ondetamoto.model.Estabelecimento;
 import br.com.fiap.ondetamoto.repository.EstabelecimentoRepository;
+import br.com.fiap.ondetamoto.repository.UsuarioRepository; // <-- 1. IMPORTE O REPOSITÓRIO DE USUÁRIO
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,9 @@ public class EstabelecimentoWebController {
     @Autowired
     private EstabelecimentoRepository estabelecimentoRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository; // <-- 2. INJETE O REPOSITÓRIO
+
     @GetMapping("/listar")
     public String listarEstabelecimentos(Model model) {
         Page<Estabelecimento> estabelecimentos = estabelecimentoRepository.findAll(PageRequest.of(0, 10));
@@ -29,8 +33,10 @@ public class EstabelecimentoWebController {
 
     @GetMapping("/novo")
     public String exibirFormulario(Model model) {
-        // Correção: sempre cria uma nova instância de Estabelecimento para novas entradas
         model.addAttribute("estabelecimento", new Estabelecimento());
+
+        model.addAttribute("allUsuarios", usuarioRepository.findAll());
+
         return "estabelecimento/form_estabelecimento";
     }
 
@@ -50,15 +56,18 @@ public class EstabelecimentoWebController {
         Optional<Estabelecimento> estabelecimentoOptional = estabelecimentoRepository.findById(id);
         if (estabelecimentoOptional.isPresent()) {
             model.addAttribute("estabelecimento", estabelecimentoOptional.get());
+
+            model.addAttribute("allUsuarios", usuarioRepository.findAll());
+
+            return "estabelecimento/form_estabelecimento";
         } else {
-            // Retorna para a lista se o estabelecimento não for encontrado
             return "redirect:/estabelecimentos/listar";
         }
-        return "estabelecimento/form_estabelecimento";
     }
 
     @GetMapping("/excluir/{id}")
     public String excluirEstabelecimento(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        // Este método não precisa de alteração
         try {
             if (estabelecimentoRepository.existsById(id)) {
                 estabelecimentoRepository.deleteById(id);

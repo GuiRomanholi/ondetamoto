@@ -48,9 +48,9 @@ public class MotoService {
         return moto;
     }
 
-    public MotoResponse motoToResponse(Moto moto, boolean self){
+    public MotoResponse motoToResponse(Moto moto, boolean self) {
         Link link;
-        if (self){
+        if (self) {
             link = linkTo(
                     methodOn(MotoController.class).readMoto(moto.getId())
             ).withSelfRel();
@@ -61,15 +61,19 @@ public class MotoService {
         }
 
         SetoresResponse setoresResponse = null;
-        if (moto.getSetores() != null) {
-            // Crie o DTO de Estabelecimento primeiro
+        if (moto.getSetores() != null && moto.getSetores().getEstabelecimento() != null) {
+
+            var estabelecimento = moto.getSetores().getEstabelecimento();
+
+            String usuarioEmail = (estabelecimento.getUsuario() != null) ? estabelecimento.getUsuario().getEmail() : null;
+
             EstabelecimentoResponse estabelecimentoResponse = new EstabelecimentoResponse(
-                    moto.getSetores().getEstabelecimento().getId(),
-                    moto.getSetores().getEstabelecimento().getEndereco(),
-                    linkTo(methodOn(EstabelecimentoController.class).readEstabelecimento(moto.getSetores().getEstabelecimento().getId())).withSelfRel()
+                    estabelecimento.getId(),
+                    estabelecimento.getEndereco(),
+                    usuarioEmail,
+                    linkTo(methodOn(EstabelecimentoController.class).readEstabelecimento(estabelecimento.getId())).withSelfRel()
             );
 
-            // Crie o DTO de Setores sem a lista de motos
             setoresResponse = new SetoresResponse(
                     moto.getSetores().getId(),
                     moto.getSetores().getNome(),
