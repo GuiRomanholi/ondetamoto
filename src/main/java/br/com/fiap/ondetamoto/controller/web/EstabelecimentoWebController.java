@@ -24,6 +24,7 @@ public class EstabelecimentoWebController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    // Lista todos os estabelecimentos de forma paginada.
     @GetMapping("/listar")
     public String listarEstabelecimentos(Model model) {
         Page<Estabelecimento> estabelecimentos = estabelecimentoRepository.findAll(PageRequest.of(0, 10));
@@ -31,6 +32,7 @@ public class EstabelecimentoWebController {
         return "estabelecimento/listar_estabelecimentos";
     }
 
+    // Exibe o formulário para criar um novo estabelecimento.
     @GetMapping("/novo")
     public String exibirFormulario(Model model) {
         model.addAttribute("estabelecimento", new Estabelecimento());
@@ -40,6 +42,7 @@ public class EstabelecimentoWebController {
         return "estabelecimento/form_estabelecimento";
     }
 
+    // Salva um estabelecimento novo ou atualiza um existente.
     @PostMapping("/salvar")
     public String salvarEstabelecimento(@Valid @ModelAttribute("estabelecimento") Estabelecimento estabelecimento, RedirectAttributes redirectAttributes) {
         try {
@@ -51,6 +54,7 @@ public class EstabelecimentoWebController {
         return "redirect:/estabelecimentos/listar";
     }
 
+    // Exibe o formulário para editar um estabelecimento existente.
     @GetMapping("/editar/{id}")
     public String exibirFormularioEdicao(@PathVariable Long id, Model model) {
         Optional<Estabelecimento> estabelecimentoOptional = estabelecimentoRepository.findById(id);
@@ -65,6 +69,7 @@ public class EstabelecimentoWebController {
         }
     }
 
+    // Exclui um estabelecimento pelo ID.
     @GetMapping("/excluir/{id}")
     public String excluirEstabelecimento(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

@@ -21,6 +21,7 @@ public class ApiSecurityConfigurations {
     @Autowired
     private SecurityFilter securityFilter;
 
+    // Configura a cadeia de filtros de segurança para a API REST.
     @Bean
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         return http

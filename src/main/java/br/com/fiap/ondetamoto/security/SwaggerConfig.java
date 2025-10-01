@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.Components;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+// Configura a documentação da API com Swagger.
 @Configuration
 public class SwaggerConfig {
 

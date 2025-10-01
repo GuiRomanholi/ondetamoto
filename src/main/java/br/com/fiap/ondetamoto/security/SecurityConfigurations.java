@@ -9,11 +9,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class SecurityConfigurations {
+    // Expõe o AuthenticationManager do Spring como um Bean para ser usado em outras partes da aplicação.
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    // Define o BCrypt como o algoritmo para codificação de senhas.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

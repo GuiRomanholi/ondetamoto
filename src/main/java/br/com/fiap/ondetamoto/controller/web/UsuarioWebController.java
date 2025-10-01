@@ -24,6 +24,7 @@ public class UsuarioWebController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // Lista todos os usuários de forma paginada.
     @GetMapping("/listar")
     public String listarUsuarios(Model model) {
         Page<Usuario> usuarios = usuarioRepository.findAll(PageRequest.of(0, 10));
@@ -31,12 +32,14 @@ public class UsuarioWebController {
         return "usuario/listar_usuarios";
     }
 
+    // Exibe o formulário para criar um novo usuário.
     @GetMapping("/novo")
     public String exibirFormulario(Model model) {
         model.addAttribute("usuario", new Usuario());
         return "usuario/form_usuario";
     }
 
+    // Salva um usuário novo ou atualiza um existente, codificando a senha.
     @PostMapping("/salvar")
     public String salvarUsuario(@Valid @ModelAttribute("usuario") Usuario usuario, RedirectAttributes redirectAttributes) {
         try {
@@ -50,6 +53,7 @@ public class UsuarioWebController {
         return "redirect:/usuarios/listar";
     }
 
+    // Exibe o formulário para editar um usuário existente.
     @GetMapping("/editar/{id}")
     public String exibirFormularioEdicao(@PathVariable Long id, Model model) {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(id);
@@ -61,6 +65,7 @@ public class UsuarioWebController {
         return "usuario/form_usuario";
     }
 
+    // Exclui um usuário pelo ID.
     @GetMapping("/excluir/{id}")
     public String excluirUsuario(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

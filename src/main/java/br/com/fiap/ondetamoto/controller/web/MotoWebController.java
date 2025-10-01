@@ -29,6 +29,7 @@ public class MotoWebController {
     @Autowired
     private SetoresRepository setoresRepository;
 
+    // Lista todas as motos de forma paginada
     @GetMapping("/listar")
     public String listarMotos(Model model) {
         Page<Moto> motos = motoService.findAllRaw(PageRequest.of(0, 10));
@@ -36,6 +37,7 @@ public class MotoWebController {
         return "moto/listar_motos";
     }
 
+    // Exibe o formulário para criar uma nova moto.
     @GetMapping("/novo")
     public String exibirFormulario(Model model) {
         model.addAttribute("moto", new Moto());
@@ -43,6 +45,7 @@ public class MotoWebController {
         return "moto/form_moto";
     }
 
+    // Salva uma moto nova ou atualiza uma existente.
     @PostMapping("/salvar")
     public String salvarMoto(@Valid @ModelAttribute("moto") Moto moto,
                              RedirectAttributes redirectAttributes) {
@@ -61,6 +64,7 @@ public class MotoWebController {
         return "redirect:/motos/listar";
     }
 
+    // Exibe o formulário para editar uma moto existente.
     @GetMapping("/editar/{id}")
     public String exibirFormularioEdicao(@PathVariable Long id, Model model) {
         Optional<Moto> motoOptional = motoService.findByIdRaw(id);
@@ -73,6 +77,7 @@ public class MotoWebController {
         return "moto/form_moto";
     }
 
+    // Exclui uma moto pelo ID.
     @PostMapping("/excluir/{id}")
     public String excluirMoto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

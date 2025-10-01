@@ -2,6 +2,7 @@ package br.com.fiap.ondetamoto.service;
 
 
 import br.com.fiap.ondetamoto.dto.RegisterDTO;
+import br.com.fiap.ondetamoto.exception.EmailAlreadyExistsException;
 import br.com.fiap.ondetamoto.model.UserRole;
 import br.com.fiap.ondetamoto.model.Usuario;
 import br.com.fiap.ondetamoto.repository.UsuarioRepository;

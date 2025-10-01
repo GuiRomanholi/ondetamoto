@@ -12,7 +12,7 @@ import static org.springframework.boot.autoconfigure.security.servlet.PathReques
 @Configuration
 @Order(2)
 public class WebSecurityConfigurations {
-
+    // Configura a cadeia de filtros de segurança para a aplicação web (Thymeleaf).
     @Bean
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http

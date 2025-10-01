@@ -26,6 +26,7 @@ public class SetoresWebController {
     @Autowired
     private EstabelecimentoRepository estabelecimentoRepository;
 
+    // Lista todos os setores de forma paginada.
     @GetMapping("/listar")
     public String listarSetores(Model model) {
         Page<Setores> setores = setoresService.findAllRaw(PageRequest.of(0, 10));
@@ -33,6 +34,7 @@ public class SetoresWebController {
         return "setores/listar_setores";
     }
 
+    // Exibe o formulário para criar um novo setor.
     @GetMapping("/novo")
     public String exibirFormularioNovo(Model model) {
         model.addAttribute("setor", new Setores());
@@ -40,6 +42,7 @@ public class SetoresWebController {
         return "setores/form_setores";
     }
 
+    // Salva um setor novo ou atualiza um existente.
     @PostMapping("/salvar")
     public String salvarSetor(@Valid @ModelAttribute("setor") Setores setor,
                               BindingResult result,
@@ -69,6 +72,7 @@ public class SetoresWebController {
         return "redirect:/setores/listar";
     }
 
+    // Exibe o formulário para editar um setor existente.
     @GetMapping("/editar/{id}")
     public String exibirFormularioEdicao(@PathVariable Long id, Model model) {
         Optional<Setores> setorOptional = setoresService.findByIdRaw(id);
@@ -81,6 +85,7 @@ public class SetoresWebController {
         return "setores/form_setores";
     }
 
+    // Exclui um setor pelo ID.
     @PostMapping("/excluir/{id}")
     public String excluirSetor(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

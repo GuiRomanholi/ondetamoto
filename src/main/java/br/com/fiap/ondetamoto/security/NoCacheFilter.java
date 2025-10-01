@@ -12,6 +12,7 @@ import java.io.IOException;
 @Component
 public class NoCacheFilter extends OncePerRequestFilter {
 
+    // Filtro que garante que as respostas não sejam armazenadas em cache pelo navegador.
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
