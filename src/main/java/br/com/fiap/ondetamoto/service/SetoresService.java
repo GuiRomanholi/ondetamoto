@@ -140,6 +140,6 @@ public class SetoresService {
     public SetoresResponse createSetor(SetoresRequest setoresRequest) {
         Setores setores = requestToSetores(setoresRequest);
         setores = setoresRepository.save(setores);
-        return setoresToResponse(setores, false); // Retorna SetoresResponse
+        return setoresToResponse(setores, false);
     }
 }

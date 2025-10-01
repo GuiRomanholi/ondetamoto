@@ -82,17 +82,14 @@ public class EstabelecimentoService {
 
     @CachePut(value = "estabelecimentos", key = "#id")
     public EstabelecimentoResponse updateEstabelecimento(Long id, EstabelecimentoRequest request) {
-        // Busca o estabelecimento existente
         Estabelecimento estExistente = estabelecimentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
-        // Busca o novo usuário (ou o mesmo) que será o dono
         Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + request.getUsuarioId()));
 
-        // Atualiza os dados
         estExistente.setEndereco(request.getEndereco());
-        estExistente.setUsuario(usuario); // <-- Associa o novo usuário
+        estExistente.setUsuario(usuario);
 
         Estabelecimento salvo = estabelecimentoRepository.save(estExistente);
         return estabelecimentoToResponse(salvo, false);

@@ -22,7 +22,7 @@ public class EstabelecimentoWebController {
     private EstabelecimentoRepository estabelecimentoRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository; // <-- 2. INJETE O REPOSITÓRIO
+    private UsuarioRepository usuarioRepository;
 
     @GetMapping("/listar")
     public String listarEstabelecimentos(Model model) {
@@ -67,7 +67,6 @@ public class EstabelecimentoWebController {
 
     @GetMapping("/excluir/{id}")
     public String excluirEstabelecimento(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        // Este método não precisa de alteração
         try {
             if (estabelecimentoRepository.existsById(id)) {
                 estabelecimentoRepository.deleteById(id);

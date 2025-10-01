@@ -28,15 +28,12 @@ public class UsuarioService {
 
     @Transactional
     public Usuario registerUser(RegisterDTO data) {
-        // 1. Verificação de e-mail (continua igual)
         if (usuarioRepository.findByEmail(data.email()) != null) {
             throw new EmailAlreadyExistsException("Este e-mail já está cadastrado.");
         }
 
-        // 2. Criptografia de senha (continua igual)
         String encryptedPassword = passwordEncoder.encode(data.senha());
 
-        // Conversão manual da String para o Enum
         UserRole userRoleEnum = UserRole.valueOf(data.role().toUpperCase());
 
         Usuario newUser = new Usuario(data.email(), encryptedPassword, userRoleEnum);

@@ -33,7 +33,6 @@ public class UsuarioWebController {
 
     @GetMapping("/novo")
     public String exibirFormulario(Model model) {
-        // Correção: sempre cria uma nova instância de Usuario para novas entradas
         model.addAttribute("usuario", new Usuario());
         return "usuario/form_usuario";
     }
@@ -57,7 +56,6 @@ public class UsuarioWebController {
         if (usuarioOptional.isPresent()) {
             model.addAttribute("usuario", usuarioOptional.get());
         } else {
-            // Retorna para a lista se o usuário não for encontrado
             return "redirect:/usuarios/listar";
         }
         return "usuario/form_usuario";
