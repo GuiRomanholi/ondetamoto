@@ -11,15 +11,15 @@ import br.com.fiap.ondetamoto.model.Moto;
 import br.com.fiap.ondetamoto.model.Setores;
 import br.com.fiap.ondetamoto.repository.MotoRepository;
 import br.com.fiap.ondetamoto.repository.SetoresRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -35,141 +35,141 @@ public class MotoService {
         this.setoresRepository = setoresRepository;
     }
 
-    public Moto requestToMoto(MotoRequest motoRequest) {
+    // --- MÉTODOS PARA O WEB CONTROLLER (LIDAM COM A ENTIDADE) ---
+
+    @Cacheable(value = "motosWeb", key = "#pageable.pageNumber")
+    public Page<Moto> findAllForWeb(Pageable pageable) {
+        return motoRepository.findAll(pageable);
+    }
+
+    @Cacheable(value = "motoWeb", key = "#id")
+    public Optional<Moto> findByIdForWeb(Long id) {
+        return motoRepository.findById(id);
+    }
+
+    @CacheEvict(value = {"motosWeb", "motoWeb", "motosApi", "motoApi"}, allEntries = true)
+    public Moto saveForWeb(Moto moto) {
+        // A lógica que estava no controller agora está aqui
+        if (moto.getSetores() != null && moto.getSetores().getId() != null) {
+            Setores setor = setoresRepository.findById(moto.getSetores().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Setor não encontrado com o ID: " + moto.getSetores().getId()));
+            moto.setSetores(setor);
+        } else {
+            moto.setSetores(null); // Garante que não haverá um setor inválido
+        }
+        return motoRepository.save(moto);
+    }
+
+    @CacheEvict(value = {"motosWeb", "motoWeb", "motosApi", "motoApi"}, allEntries = true)
+    public void deleteByIdForWeb(Long id) {
+        if (!motoRepository.existsById(id)) {
+            throw new EntityNotFoundException("Moto não encontrada com o ID: " + id);
+        }
+        motoRepository.deleteById(id);
+    }
+
+    // --- MÉTODOS PARA O API CONTROLLER (LIDAM COM DTOs) ---
+
+    @Cacheable(value = "motosApi", key = "#pageable.pageNumber")
+    public Page<MotoResponse> findAllForApi(Pageable pageable) {
+        return motoRepository.findAll(pageable)
+                .map(moto -> motoToResponse(moto, true));
+    }
+
+    @Cacheable(value = "motoApi", key = "#id")
+    public MotoResponse findByIdForApi(Long id) {
+        Moto moto = motoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada com o ID: " + id));
+        return motoToResponse(moto, false);
+    }
+
+    @CacheEvict(value = {"motosWeb", "motosApi"}, allEntries = true)
+    public MotoResponse createForApi(MotoRequest motoRequest) {
+        Moto moto = requestToMoto(motoRequest);
+        Moto motoSalva = motoRepository.save(moto);
+        return motoToResponse(motoSalva, false);
+    }
+
+    @CachePut(value = "motoApi", key = "#id")
+    @CacheEvict(value = {"motosWeb", "motosApi"}, allEntries = true)
+    public MotoResponse updateForApi(Long id, MotoRequest motoRequest) {
+        Moto motoExistente = motoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada com o ID: " + id));
+
+        // Atualiza os campos
+        motoExistente.setMarca(motoRequest.getMarca());
+        motoExistente.setPlaca(motoRequest.getPlaca());
+        motoExistente.setTag(motoRequest.getTag());
+
+        if (motoRequest.getIdSetores() != null) {
+            Setores setor = setoresRepository.findById(motoRequest.getIdSetores())
+                    .orElseThrow(() -> new EntityNotFoundException("Setor não encontrado com o ID: " + motoRequest.getIdSetores()));
+            motoExistente.setSetores(setor);
+        } else {
+            motoExistente.setSetores(null);
+        }
+
+        Moto motoAtualizada = motoRepository.save(motoExistente);
+        return motoToResponse(motoAtualizada, true);
+    }
+
+    public void deleteByIdForApi(Long id) {
+        // Reutiliza a lógica do método web
+        deleteByIdForWeb(id);
+    }
+
+    public Page<MotoResponse> findByTagForApi(String tag, Pageable pageable) {
+        Page<Moto> motos = motoRepository.findByTagIgnoreCase(tag, pageable);
+        return motos.map(moto -> motoToResponse(moto, true));
+    }
+
+    public Page<MotoResponse> findBySetorIdForApi(Long setorId, Pageable pageable) {
+        Page<Moto> motos = motoRepository.findBySetoresId(setorId, pageable);
+        return motos.map(moto -> motoToResponse(moto, true));
+    }
+
+
+    // --- MÉTODOS AUXILIARES E CONVERSORES (PRIVADOS) ---
+
+    private Moto requestToMoto(MotoRequest motoRequest) {
         Moto moto = new Moto();
         moto.setMarca(motoRequest.getMarca());
         moto.setPlaca(motoRequest.getPlaca());
         moto.setTag(motoRequest.getTag());
 
         if (motoRequest.getIdSetores() != null) {
-            Optional<Setores> setores = setoresRepository.findById(motoRequest.getIdSetores());
-            setores.ifPresent(moto::setSetores);
+            Setores setores = setoresRepository.findById(motoRequest.getIdSetores())
+                    .orElseThrow(() -> new EntityNotFoundException("Setor não encontrado com o ID: " + motoRequest.getIdSetores()));
+            moto.setSetores(setores);
         }
         return moto;
     }
 
-    public MotoResponse motoToResponse(Moto moto, boolean self) {
-        Link link;
-        if (self) {
-            link = linkTo(
-                    methodOn(MotoController.class).readMoto(moto.getId())
-            ).withSelfRel();
-        } else {
-            link = linkTo(
-                    methodOn(MotoController.class).readMotos(0)
-            ).withRel("Lista de Motos");
-        }
+    private MotoResponse motoToResponse(Moto moto, boolean self) {
+        Link link = self ?
+                linkTo(methodOn(MotoController.class).readMoto(moto.getId())).withSelfRel() :
+                linkTo(methodOn(MotoController.class).readMotos(0)).withRel("Lista de Motos");
 
         SetoresResponse setoresResponse = null;
-        if (moto.getSetores() != null && moto.getSetores().getEstabelecimento() != null) {
-
-            var estabelecimento = moto.getSetores().getEstabelecimento();
-
-            String usuarioEmail = (estabelecimento.getUsuario() != null) ? estabelecimento.getUsuario().getEmail() : null;
-
-            EstabelecimentoResponse estabelecimentoResponse = new EstabelecimentoResponse(
-                    estabelecimento.getId(),
-                    estabelecimento.getEndereco(),
-                    usuarioEmail,
-                    linkTo(methodOn(EstabelecimentoController.class).readEstabelecimento(estabelecimento.getId())).withSelfRel()
-            );
-
+        if (moto.getSetores() != null) {
+            var setor = moto.getSetores();
+            var estabelecimento = setor.getEstabelecimento();
+            EstabelecimentoResponse estabelecimentoResponse = null;
+            if (estabelecimento != null) {
+                String usuarioEmail = (estabelecimento.getUsuario() != null) ? estabelecimento.getUsuario().getEmail() : null;
+                estabelecimentoResponse = new EstabelecimentoResponse(
+                        estabelecimento.getId(),
+                        estabelecimento.getEndereco(),
+                        usuarioEmail,
+                        linkTo(methodOn(EstabelecimentoController.class).readEstabelecimento(estabelecimento.getId())).withSelfRel()
+                );
+            }
             setoresResponse = new SetoresResponse(
-                    moto.getSetores().getId(),
-                    moto.getSetores().getNome(),
-                    moto.getSetores().getTipo(),
-                    moto.getSetores().getTamanho(),
-                    estabelecimentoResponse,
-                    linkTo(methodOn(SetoresController.class).readSetor(moto.getSetores().getId())).withSelfRel()
+                    setor.getId(), setor.getNome(), setor.getTipo(), setor.getTamanho(), estabelecimentoResponse,
+                    linkTo(methodOn(SetoresController.class).readSetor(setor.getId())).withSelfRel()
             );
         }
 
         return new MotoResponse(moto.getId(), moto.getPlaca(), moto.getMarca(), moto.getTag(), setoresResponse, link);
     }
-
-
-    public List<MotoResponse> motosToResponse(List<Moto> motos) {
-        List<MotoResponse> motosResponse = new ArrayList<>();
-        for (Moto moto : motos) {
-            motosResponse.add(motoToResponse(moto, true));
-        }
-        return motosResponse;
-    }
-
-    @Cacheable(value = "motos", key = "#pageable.pageNumber")
-    public Page<MotoResponse> findAll(Pageable pageable) {
-        return motoRepository.findAll(pageable)
-                .map(moto -> motoToResponse(moto, true));
-    }
-
-    @Cacheable(value = "moto", key = "#id")
-    public MotoResponse findById(Long id) {
-        Moto moto = motoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Moto não encontrada"));
-        return motoToResponse(moto, false);
-    }
-
-    public Moto findMotoById(Long id) {
-        return motoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Moto não encontrada"));
-    }
-
-    @CacheEvict(value = {"motos", "moto", "motosRaw", "motoRaw"}, allEntries = true)
-    public void deleteById(Long id) {
-        motoRepository.deleteById(id);
-    }
-
-
-    @CacheEvict(value = {"motos", "moto"}, allEntries = true)
-    public Moto updateMotoFromRequest(Moto motoExistente, MotoRequest motoRequest) {
-        motoExistente.setMarca(motoRequest.getMarca());
-        motoExistente.setPlaca(motoRequest.getPlaca());
-        motoExistente.setTag(motoRequest.getTag());
-
-        if (motoRequest.getIdSetores() != null) {
-            Optional<Setores> setores = setoresRepository.findById(motoRequest.getIdSetores());
-            setores.ifPresent(motoExistente::setSetores);
-        }
-
-        return motoRepository.save(motoExistente);
-    }
-
-    @CacheEvict(value = "motos", allEntries = true)
-    public Moto createMoto(MotoRequest motoRequest) {
-        Moto moto = requestToMoto(motoRequest);
-        return motoRepository.save(moto);
-    }
-
-    @Cacheable(value = "motosRaw", key = "#pageable.pageNumber")
-    public Page<Moto> findAllRaw(Pageable pageable) {
-        return motoRepository.findAll(pageable);
-    }
-
-    @Cacheable(value = "motoRaw", key = "#id")
-    public Optional<Moto> findByIdRaw(Long id) {
-        return motoRepository.findById(id);
-    }
-
-    @CacheEvict(value = {"motos", "moto", "motosRaw", "motoRaw"}, allEntries = true)
-    public Moto saveRaw(Moto moto) {
-        return motoRepository.save(moto);
-    }
-
-    @CacheEvict(value = {"motos", "moto"}, allEntries = true)
-    public void deleteMoto(Long id) {
-        motoRepository.deleteById(id);
-    }
-
-    public Page<MotoResponse> findByTag(String tag, Pageable pageable) {
-        Page<Moto> motos = motoRepository.findByTagIgnoreCase(tag, pageable);
-        // Reutilizamos seu método de conversão para transformar a página de Moto em MotoResponse
-        return motos.map(moto -> motoToResponse(moto, false));
-    }
-
-    public Page<MotoResponse> findBySetorId(Long setorId, Pageable pageable) {
-        Page<Moto> motos = motoRepository.findBySetoresId(setorId, pageable);
-        // Reutilizamos seu método de conversão aqui também
-        return motos.map(moto -> motoToResponse(moto, false));
-    }
 }
-

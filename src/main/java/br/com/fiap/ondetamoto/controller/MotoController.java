@@ -2,8 +2,6 @@ package br.com.fiap.ondetamoto.controller;
 
 import br.com.fiap.ondetamoto.dto.MotoRequest;
 import br.com.fiap.ondetamoto.dto.MotoResponse;
-import br.com.fiap.ondetamoto.model.Moto;
-import br.com.fiap.ondetamoto.repository.MotoRepository;
 import br.com.fiap.ondetamoto.service.MotoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,18 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping(value ="/api/motos", produces = {"application/json"})
 @Tag(name = "api-motos")
 public class MotoController {
 
+    // REMOVIDO: MotoRepository
     @Autowired
-    MotoRepository motoRepository;
-
-    @Autowired
-    MotoService motoService;
+    private MotoService motoService;
 
     @Operation(summary = "Criar uma nova Moto")
     @ApiResponses(value = {
@@ -44,8 +39,7 @@ public class MotoController {
     })
     @PostMapping
     public ResponseEntity<MotoResponse> createMoto(@Valid @RequestBody MotoRequest motoRequest){
-        Moto motoSalva = motoService.createMoto(motoRequest);
-        MotoResponse response = motoService.motoToResponse(motoSalva, true);
+        MotoResponse response = motoService.createForApi(motoRequest);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -53,7 +47,8 @@ public class MotoController {
     @GetMapping
     public ResponseEntity<Page<MotoResponse>> readMotos(@RequestParam(defaultValue = "0") Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("placa").ascending());
-        return new ResponseEntity<>(motoService.findAll(pageable), HttpStatus.OK);
+        Page<MotoResponse> response = motoService.findAllForApi(pageable);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Operation(summary = "Retorna uma moto por ID")
@@ -67,46 +62,46 @@ public class MotoController {
     @GetMapping("/{id}")
     public ResponseEntity<MotoResponse> readMoto(@PathVariable Long id) {
         try {
-            return new ResponseEntity<>(motoService.findById(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
+            MotoResponse response = motoService.findByIdForApi(id);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 
     @Operation(summary = "Atualiza uma moto existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Moto encontrada e atualizada com sucesso",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = MotoResponse.class))}),
-            @ApiResponse(responseCode = "400", description = "Nenhuma moto encontrada para atualizar",
+            @ApiResponse(responseCode = "404", description = "Nenhuma moto encontrada para atualizar",
                     content = @Content(schema = @Schema()))
     })
     @PutMapping("/{id}")
     public ResponseEntity<MotoResponse> updateMoto(@PathVariable Long id, @Valid @RequestBody MotoRequest motoRequest) {
-        Moto motoExistente = motoService.findMotoById(id);
-
-        Moto motoAtualizada = motoService.updateMotoFromRequest(motoExistente, motoRequest);
-        MotoResponse response = motoService.motoToResponse(motoAtualizada, true);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        try {
+            MotoResponse response = motoService.updateForApi(id, motoRequest);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @Operation(summary = "Exclui uma moto por ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "400", description = "Nenhuma moto encontrada para excluir",
+            @ApiResponse(responseCode = "404", description = "Nenhuma moto encontrada para excluir",
                     content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "204", description = "Moto excluída com sucesso",
                     content = @Content(schema = @Schema()))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMoto(@PathVariable Long id) {
-        Optional<Moto> motoExistente = motoRepository.findById(id);
-        if (motoExistente.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            motoService.deleteByIdForApi(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        motoService.deleteMoto(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "Retorna uma lista de motos filtradas por Tag")
@@ -114,9 +109,8 @@ public class MotoController {
     public ResponseEntity<Page<MotoResponse>> getMotosByTag(
             @RequestParam String tag,
             @RequestParam(defaultValue = "0") Integer page) {
-
         Pageable pageable = PageRequest.of(page, 10, Sort.by("placa").ascending());
-        Page<MotoResponse> motos = motoService.findByTag(tag, pageable);
+        Page<MotoResponse> motos = motoService.findByTagForApi(tag, pageable);
         return new ResponseEntity<>(motos, HttpStatus.OK);
     }
 
@@ -125,10 +119,8 @@ public class MotoController {
     public ResponseEntity<Page<MotoResponse>> getMotosBySetor(
             @RequestParam Long setorId,
             @RequestParam(defaultValue = "0") Integer page) {
-
         Pageable pageable = PageRequest.of(page, 10, Sort.by("placa").ascending());
-        Page<MotoResponse> motos = motoService.findBySetorId(setorId, pageable);
+        Page<MotoResponse> motos = motoService.findBySetorIdForApi(setorId, pageable);
         return new ResponseEntity<>(motos, HttpStatus.OK);
     }
-
 }

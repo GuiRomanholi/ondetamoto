@@ -1,8 +1,8 @@
 package br.com.fiap.ondetamoto.controller.web;
 
 import br.com.fiap.ondetamoto.model.Estabelecimento;
-import br.com.fiap.ondetamoto.repository.EstabelecimentoRepository;
-import br.com.fiap.ondetamoto.repository.UsuarioRepository; // <-- 1. IMPORTE O REPOSITÓRIO DE USUÁRIO
+import br.com.fiap.ondetamoto.repository.UsuarioRepository;
+import br.com.fiap.ondetamoto.service.EstabelecimentoService; // <-- IMPORTE O SERVIÇO
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,34 +19,29 @@ import java.util.Optional;
 public class EstabelecimentoWebController {
 
     @Autowired
-    private EstabelecimentoRepository estabelecimentoRepository;
+    private EstabelecimentoService estabelecimentoService;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // Lista todos os estabelecimentos de forma paginada.
     @GetMapping("/listar")
     public String listarEstabelecimentos(Model model) {
-        Page<Estabelecimento> estabelecimentos = estabelecimentoRepository.findAll(PageRequest.of(0, 10));
+        Page<Estabelecimento> estabelecimentos = estabelecimentoService.findAllForWeb(PageRequest.of(0, 10));
         model.addAttribute("estabelecimentos", estabelecimentos);
         return "estabelecimento/listar_estabelecimentos";
     }
 
-    // Exibe o formulário para criar um novo estabelecimento.
     @GetMapping("/novo")
     public String exibirFormulario(Model model) {
         model.addAttribute("estabelecimento", new Estabelecimento());
-
         model.addAttribute("allUsuarios", usuarioRepository.findAll());
-
         return "estabelecimento/form_estabelecimento";
     }
 
-    // Salva um estabelecimento novo ou atualiza um existente.
     @PostMapping("/salvar")
     public String salvarEstabelecimento(@Valid @ModelAttribute("estabelecimento") Estabelecimento estabelecimento, RedirectAttributes redirectAttributes) {
         try {
-            estabelecimentoRepository.save(estabelecimento);
+            estabelecimentoService.saveForWeb(estabelecimento);
             redirectAttributes.addFlashAttribute("mensagem", "Estabelecimento salvo com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao salvar o estabelecimento: " + e.getMessage());
@@ -54,31 +49,25 @@ public class EstabelecimentoWebController {
         return "redirect:/estabelecimentos/listar";
     }
 
-    // Exibe o formulário para editar um estabelecimento existente.
     @GetMapping("/editar/{id}")
     public String exibirFormularioEdicao(@PathVariable Long id, Model model) {
-        Optional<Estabelecimento> estabelecimentoOptional = estabelecimentoRepository.findById(id);
+        Optional<Estabelecimento> estabelecimentoOptional = estabelecimentoService.findByIdForWeb(id);
         if (estabelecimentoOptional.isPresent()) {
             model.addAttribute("estabelecimento", estabelecimentoOptional.get());
-
             model.addAttribute("allUsuarios", usuarioRepository.findAll());
-
             return "estabelecimento/form_estabelecimento";
         } else {
+            // Adiciona uma mensagem de erro se não encontrar
+            // redirectAttributes.addFlashAttribute("erro", "Estabelecimento não encontrado.");
             return "redirect:/estabelecimentos/listar";
         }
     }
 
-    // Exclui um estabelecimento pelo ID.
     @GetMapping("/excluir/{id}")
     public String excluirEstabelecimento(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            if (estabelecimentoRepository.existsById(id)) {
-                estabelecimentoRepository.deleteById(id);
-                redirectAttributes.addFlashAttribute("mensagem", "Estabelecimento excluído com sucesso!");
-            } else {
-                redirectAttributes.addFlashAttribute("erro", "Estabelecimento não encontrado.");
-            }
+            estabelecimentoService.deleteByIdForWeb(id);
+            redirectAttributes.addFlashAttribute("mensagem", "Estabelecimento excluído com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao excluir o estabelecimento: " + e.getMessage());
         }

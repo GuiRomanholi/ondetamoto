@@ -1,6 +1,5 @@
 package br.com.fiap.ondetamoto.controller.web;
 
-import br.com.fiap.ondetamoto.model.Estabelecimento;
 import br.com.fiap.ondetamoto.model.Setores;
 import br.com.fiap.ondetamoto.repository.EstabelecimentoRepository;
 import br.com.fiap.ondetamoto.service.SetoresService;
@@ -24,17 +23,15 @@ public class SetoresWebController {
     private SetoresService setoresService;
 
     @Autowired
-    private EstabelecimentoRepository estabelecimentoRepository;
+    private EstabelecimentoRepository estabelecimentoRepository; // Mantido para popular o formulário
 
-    // Lista todos os setores de forma paginada.
     @GetMapping("/listar")
     public String listarSetores(Model model) {
-        Page<Setores> setores = setoresService.findAllRaw(PageRequest.of(0, 10));
+        Page<Setores> setores = setoresService.findAllForWeb(PageRequest.of(0, 10));
         model.addAttribute("setores", setores);
         return "setores/listar_setores";
     }
 
-    // Exibe o formulário para criar um novo setor.
     @GetMapping("/novo")
     public String exibirFormularioNovo(Model model) {
         model.addAttribute("setor", new Setores());
@@ -42,7 +39,6 @@ public class SetoresWebController {
         return "setores/form_setores";
     }
 
-    // Salva um setor novo ou atualiza um existente.
     @PostMapping("/salvar")
     public String salvarSetor(@Valid @ModelAttribute("setor") Setores setor,
                               BindingResult result,
@@ -50,18 +46,11 @@ public class SetoresWebController {
                               RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             model.addAttribute("estabelecimentos", estabelecimentoRepository.findAll());
-            model.addAttribute("setor", setor);
             return "setores/form_setores";
         }
 
         try {
-            if (setor.getEstabelecimento() != null && setor.getEstabelecimento().getId() != null) {
-                Optional<Estabelecimento> est = estabelecimentoRepository.findById(setor.getEstabelecimento().getId());
-                est.ifPresent(setor::setEstabelecimento);
-            }
-
-            setoresService.saveRaw(setor);
-
+            setoresService.saveForWeb(setor); // Lógica de salvar agora está totalmente no serviço
             redirectAttributes.addFlashAttribute("mensagem", "Setor salvo com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao salvar o setor: " + e.getMessage());
@@ -72,27 +61,27 @@ public class SetoresWebController {
         return "redirect:/setores/listar";
     }
 
-    // Exibe o formulário para editar um setor existente.
     @GetMapping("/editar/{id}")
-    public String exibirFormularioEdicao(@PathVariable Long id, Model model) {
-        Optional<Setores> setorOptional = setoresService.findByIdRaw(id);
+    public String exibirFormularioEdicao(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Setores> setorOptional = setoresService.findByIdForWeb(id);
         if (setorOptional.isPresent()) {
             model.addAttribute("setor", setorOptional.get());
             model.addAttribute("estabelecimentos", estabelecimentoRepository.findAll());
+            return "setores/form_setores";
         } else {
+            redirectAttributes.addFlashAttribute("erro", "Setor não encontrado.");
             return "redirect:/setores/listar";
         }
-        return "setores/form_setores";
     }
 
-    // Exclui um setor pelo ID.
-    @PostMapping("/excluir/{id}")
+    // Alterado para @GetMapping para consistência
+    @GetMapping("/excluir/{id}")
     public String excluirSetor(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            setoresService.deleteById(id);
+            setoresService.deleteByIdForWeb(id);
             redirectAttributes.addFlashAttribute("mensagem", "Setor excluído com sucesso!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao excluir o setor.");
+            redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao excluir o setor: " + e.getMessage());
         }
         return "redirect:/setores/listar";
     }

@@ -1,8 +1,6 @@
 package br.com.fiap.ondetamoto.controller.web;
 
 import br.com.fiap.ondetamoto.model.Moto;
-import br.com.fiap.ondetamoto.model.Setores;
-import br.com.fiap.ondetamoto.repository.MotoRepository;
 import br.com.fiap.ondetamoto.repository.SetoresRepository;
 import br.com.fiap.ondetamoto.service.MotoService;
 import jakarta.validation.Valid;
@@ -23,21 +21,18 @@ public class MotoWebController {
     @Autowired
     private MotoService motoService;
 
-    @Autowired
-    private MotoRepository motoRepository;
+    // REMOVIDO: MotoRepository
 
     @Autowired
-    private SetoresRepository setoresRepository;
+    private SetoresRepository setoresRepository; // Mantido para popular o dropdown do formulário
 
-    // Lista todas as motos de forma paginada
     @GetMapping("/listar")
     public String listarMotos(Model model) {
-        Page<Moto> motos = motoService.findAllRaw(PageRequest.of(0, 10));
+        Page<Moto> motos = motoService.findAllForWeb(PageRequest.of(0, 10));
         model.addAttribute("motos", motos);
         return "moto/listar_motos";
     }
 
-    // Exibe o formulário para criar uma nova moto.
     @GetMapping("/novo")
     public String exibirFormulario(Model model) {
         model.addAttribute("moto", new Moto());
@@ -45,18 +40,10 @@ public class MotoWebController {
         return "moto/form_moto";
     }
 
-    // Salva uma moto nova ou atualiza uma existente.
     @PostMapping("/salvar")
-    public String salvarMoto(@Valid @ModelAttribute("moto") Moto moto,
-                             RedirectAttributes redirectAttributes) {
+    public String salvarMoto(@Valid @ModelAttribute("moto") Moto moto, RedirectAttributes redirectAttributes) {
         try {
-            if (moto.getSetores() != null && moto.getSetores().getId() != null) {
-                Optional<Setores> setor = setoresRepository.findById(moto.getSetores().getId());
-                setor.ifPresent(moto::setSetores);
-            }
-
-            motoService.saveRaw(moto);
-
+            motoService.saveForWeb(moto); // Toda a lógica de salvar está no serviço agora
             redirectAttributes.addFlashAttribute("mensagem", "Moto salva com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Erro ao salvar moto: " + e.getMessage());
@@ -64,33 +51,28 @@ public class MotoWebController {
         return "redirect:/motos/listar";
     }
 
-    // Exibe o formulário para editar uma moto existente.
     @GetMapping("/editar/{id}")
     public String exibirFormularioEdicao(@PathVariable Long id, Model model) {
-        Optional<Moto> motoOptional = motoService.findByIdRaw(id);
+        Optional<Moto> motoOptional = motoService.findByIdForWeb(id);
         if (motoOptional.isPresent()) {
             model.addAttribute("moto", motoOptional.get());
             model.addAttribute("setores", setoresRepository.findAll());
+            return "moto/form_moto";
         } else {
+            //redirectAttributes.addFlashAttribute("erro", "Moto não encontrada.");
             return "redirect:/motos/listar";
         }
-        return "moto/form_moto";
     }
 
-    // Exclui uma moto pelo ID.
-    @PostMapping("/excluir/{id}")
+    // Alterado para @GetMapping para corresponder à prática comum de links de exclusão
+    @GetMapping("/excluir/{id}")
     public String excluirMoto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
-            if (motoService.findByIdRaw(id).isPresent()) {
-                motoService.deleteById(id);
-                redirectAttributes.addFlashAttribute("mensagem", "Moto excluída com sucesso!");
-            } else {
-                redirectAttributes.addFlashAttribute("erro", "Moto não encontrada.");
-            }
+            motoService.deleteByIdForWeb(id);
+            redirectAttributes.addFlashAttribute("mensagem", "Moto excluída com sucesso!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("erro", "Ocorreu um erro ao excluir a moto: " + e.getMessage());
         }
-
         return "redirect:/motos/listar";
     }
 }

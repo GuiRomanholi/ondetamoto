@@ -9,6 +9,7 @@ import br.com.fiap.ondetamoto.model.Estabelecimento;
 import br.com.fiap.ondetamoto.model.Setores;
 import br.com.fiap.ondetamoto.repository.EstabelecimentoRepository;
 import br.com.fiap.ondetamoto.repository.SetoresRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,10 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -35,111 +33,119 @@ public class SetoresService {
         this.estabelecimentoRepository = estabelecimentoRepository;
     }
 
-    public Setores requestToSetores(SetoresRequest setoresRequest) {
-        Setores setores = new Setores();
-        setores.setNome(setoresRequest.getNome());
-        setores.setTipo(setoresRequest.getTipo());
-        setores.setTamanho(setoresRequest.getTamanho());
+    // --- MÉTODOS PARA O WEB CONTROLLER (LIDAM COM A ENTIDADE) ---
 
-        if (setoresRequest.getIdEstabelecimento() != null) {
-            Optional<Estabelecimento> estabelecimento = estabelecimentoRepository.findById(setoresRequest.getIdEstabelecimento());
-            estabelecimento.ifPresent(setores::setEstabelecimento);
-        }
-
-        return setores;
-    }
-
-    public SetoresResponse setoresToResponse(Setores setores, boolean self) {
-        Link link;
-        if (self) {
-            link = linkTo(methodOn(SetoresController.class).readSetor(setores.getId())).withSelfRel();
-        } else {
-            link = linkTo(methodOn(SetoresController.class).readSetores(0)).withRel("Lista de Setores");
-        }
-
-        EstabelecimentoResponse estabelecimentoResponse = null;
-        if (setores.getEstabelecimento() != null) {
-            Estabelecimento est = setores.getEstabelecimento();
-            Link estLink = linkTo(methodOn(EstabelecimentoController.class).readEstabelecimento(est.getId())).withSelfRel();
-
-            String usuarioEmail = (est.getUsuario() != null) ? est.getUsuario().getEmail() : null;
-
-            estabelecimentoResponse = new EstabelecimentoResponse(est.getId(), est.getEndereco(), usuarioEmail, estLink);
-
-        }
-
-        return new SetoresResponse(
-                setores.getId(),
-                setores.getNome(),
-                setores.getTipo(),
-                setores.getTamanho(),
-                estabelecimentoResponse,
-                link
-        );
-    }
-
-    public Page<Setores> findAllRaw(Pageable pageable) {
+    @Cacheable(value = "setoresWeb", key = "#pageable.pageNumber")
+    public Page<Setores> findAllForWeb(Pageable pageable) {
         return setoresRepository.findAll(pageable);
     }
 
-    public Optional<Setores> findByIdRaw(Long id) {
+    @Cacheable(value = "setorWeb", key = "#id")
+    public Optional<Setores> findByIdForWeb(Long id) {
         return setoresRepository.findById(id);
     }
 
-    @CacheEvict(value = {"setor", "setores"}, allEntries = true)
-    public Setores saveRaw(Setores setor) {
+    @CacheEvict(value = {"setoresWeb", "setorWeb", "setoresApi", "setorApi"}, allEntries = true)
+    public Setores saveForWeb(Setores setor) {
+        // Lógica de busca do estabelecimento movida do controller para cá
+        if (setor.getEstabelecimento() != null && setor.getEstabelecimento().getId() != null) {
+            Estabelecimento est = estabelecimentoRepository.findById(setor.getEstabelecimento().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Estabelecimento não encontrado com o ID: " + setor.getEstabelecimento().getId()));
+            setor.setEstabelecimento(est);
+        } else {
+            setor.setEstabelecimento(null);
+        }
         return setoresRepository.save(setor);
     }
 
-    public List<SetoresResponse> setoresToResponse(List<Setores> setores) {
-        List<SetoresResponse> setoresResponse = new ArrayList<>();
-        for (Setores setor : setores) {
-            setoresResponse.add(setoresToResponse(setor, true));
+    @CacheEvict(value = {"setoresWeb", "setorWeb", "setoresApi", "setorApi"}, allEntries = true)
+    public void deleteByIdForWeb(Long id) {
+        if (!setoresRepository.existsById(id)) {
+            throw new EntityNotFoundException("Setor não encontrado com o ID: " + id);
         }
-        return setoresResponse;
+        setoresRepository.deleteById(id);
     }
 
-    @Cacheable(value = "setores", key = "#pageable.pageNumber")
-    public Page<SetoresResponse> findAll(Pageable pageable) {
+    // --- MÉTODOS PARA O API CONTROLLER (LIDAM COM DTOs) ---
+
+    @Cacheable(value = "setoresApi", key = "#pageable.pageNumber")
+    public Page<SetoresResponse> findAllForApi(Pageable pageable) {
         return setoresRepository.findAll(pageable)
                 .map(setor -> setoresToResponse(setor, true));
     }
 
-    @Cacheable(value = "setor", key = "#id")
-    public SetoresResponse findById(Long id) {
+    @Cacheable(value = "setorApi", key = "#id")
+    public SetoresResponse findByIdForApi(Long id) {
         Setores setor = setoresRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Setor não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Setor não encontrado com o ID: " + id));
         return setoresToResponse(setor, false);
     }
 
-    @CacheEvict(value = {"setor", "setores"}, allEntries = true)
-    public void deleteById(Long id) {
-        setoresRepository.deleteById(id);
+    @CacheEvict(value = {"setoresWeb", "setoresApi"}, allEntries = true)
+    public SetoresResponse createForApi(SetoresRequest setoresRequest) {
+        Setores setores = requestToSetores(setoresRequest);
+        Setores setorSalvo = setoresRepository.save(setores);
+        return setoresToResponse(setorSalvo, false);
     }
 
-    @CacheEvict(value = {"setor", "setores"}, allEntries = true)
-    public SetoresResponse updateSetor(Long id, SetoresRequest request) {
+    @CachePut(value = "setorApi", key = "#id")
+    @CacheEvict(value = {"setoresWeb", "setoresApi"}, allEntries = true)
+    public SetoresResponse updateForApi(Long id, SetoresRequest request) {
         Setores setorExistente = setoresRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Setor não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Setor não encontrado com o ID: " + id));
 
-        if (request.getNome() != null) setorExistente.setNome(request.getNome());
-        if (request.getTipo() != null) setorExistente.setTipo(request.getTipo());
-        if (request.getTamanho() != null) setorExistente.setTamanho(request.getTamanho());
+        setorExistente.setNome(request.getNome());
+        setorExistente.setTipo(request.getTipo());
+        setorExistente.setTamanho(request.getTamanho());
 
         if (request.getIdEstabelecimento() != null) {
             Estabelecimento estabelecimento = estabelecimentoRepository.findById(request.getIdEstabelecimento())
-                    .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+                    .orElseThrow(() -> new EntityNotFoundException("Estabelecimento não encontrado com o ID: " + request.getIdEstabelecimento()));
             setorExistente.setEstabelecimento(estabelecimento);
+        } else {
+            setorExistente.setEstabelecimento(null);
         }
 
         Setores setorAtualizado = setoresRepository.save(setorExistente);
         return setoresToResponse(setorAtualizado, false);
     }
 
-    @CacheEvict(value = "setores", allEntries = true)
-    public SetoresResponse createSetor(SetoresRequest setoresRequest) {
-        Setores setores = requestToSetores(setoresRequest);
-        setores = setoresRepository.save(setores);
-        return setoresToResponse(setores, false);
+    public void deleteByIdForApi(Long id) {
+        // Reutiliza a mesma lógica de deleção da web
+        deleteByIdForWeb(id);
+    }
+
+    // --- MÉTODOS AUXILIARES E CONVERSORES (PRIVADOS) ---
+
+    private Setores requestToSetores(SetoresRequest setoresRequest) {
+        Setores setores = new Setores();
+        setores.setNome(setoresRequest.getNome());
+        setores.setTipo(setoresRequest.getTipo());
+        setores.setTamanho(setoresRequest.getTamanho());
+
+        if (setoresRequest.getIdEstabelecimento() != null) {
+            Estabelecimento estabelecimento = estabelecimentoRepository.findById(setoresRequest.getIdEstabelecimento())
+                    .orElseThrow(() -> new EntityNotFoundException("Estabelecimento não encontrado com o ID: " + setoresRequest.getIdEstabelecimento()));
+            setores.setEstabelecimento(estabelecimento);
+        }
+        return setores;
+    }
+
+    private SetoresResponse setoresToResponse(Setores setores, boolean self) {
+        Link link = self ?
+                linkTo(methodOn(SetoresController.class).readSetor(setores.getId())).withSelfRel() :
+                linkTo(methodOn(SetoresController.class).readSetores(0)).withRel("Lista de Setores");
+
+        EstabelecimentoResponse estabelecimentoResponse = null;
+        if (setores.getEstabelecimento() != null) {
+            Estabelecimento est = setores.getEstabelecimento();
+            Link estLink = linkTo(methodOn(EstabelecimentoController.class).readEstabelecimento(est.getId())).withSelfRel();
+            String usuarioEmail = (est.getUsuario() != null) ? est.getUsuario().getEmail() : null;
+            estabelecimentoResponse = new EstabelecimentoResponse(est.getId(), est.getEndereco(), usuarioEmail, estLink);
+        }
+
+        return new SetoresResponse(
+                setores.getId(), setores.getNome(), setores.getTipo(), setores.getTamanho(), estabelecimentoResponse, link
+        );
     }
 }
