@@ -2,8 +2,8 @@ package br.com.fiap.ondetamoto.controller;
 
 import br.com.fiap.ondetamoto.dto.AuthDTO;
 import br.com.fiap.ondetamoto.dto.RegisterDTO;
-import br.com.fiap.ondetamoto.model.Usuario; // Certifique-se que seu Usuario tem o enum UserRole
-import br.com.fiap.ondetamoto.model.UserRole; // Importe seu enum
+import br.com.fiap.ondetamoto.model.Usuario;
+import br.com.fiap.ondetamoto.model.UserRole;
 import br.com.fiap.ondetamoto.repository.UsuarioRepository;
 import br.com.fiap.ondetamoto.service.TokenService;
 import jakarta.validation.Valid;
