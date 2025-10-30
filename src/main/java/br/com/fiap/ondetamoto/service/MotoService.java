@@ -159,5 +159,17 @@ public class MotoService {
     public void deleteMoto(Long id) {
         motoRepository.deleteById(id);
     }
+
+    public Page<MotoResponse> findByTag(String tag, Pageable pageable) {
+        Page<Moto> motos = motoRepository.findByTagIgnoreCase(tag, pageable);
+        // Reutilizamos seu método de conversão para transformar a página de Moto em MotoResponse
+        return motos.map(moto -> motoToResponse(moto, false));
+    }
+
+    public Page<MotoResponse> findBySetorId(Long setorId, Pageable pageable) {
+        Page<Moto> motos = motoRepository.findBySetoresId(setorId, pageable);
+        // Reutilizamos seu método de conversão aqui também
+        return motos.map(moto -> motoToResponse(moto, false));
+    }
 }
 

@@ -109,5 +109,26 @@ public class MotoController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @Operation(summary = "Retorna uma lista de motos filtradas por Tag")
+    @GetMapping("/by-tag")
+    public ResponseEntity<Page<MotoResponse>> getMotosByTag(
+            @RequestParam String tag,
+            @RequestParam(defaultValue = "0") Integer page) {
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("placa").ascending());
+        Page<MotoResponse> motos = motoService.findByTag(tag, pageable);
+        return new ResponseEntity<>(motos, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Retorna uma lista de motos filtradas por ID do Setor")
+    @GetMapping("/by-setor")
+    public ResponseEntity<Page<MotoResponse>> getMotosBySetor(
+            @RequestParam Long setorId,
+            @RequestParam(defaultValue = "0") Integer page) {
+
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("placa").ascending());
+        Page<MotoResponse> motos = motoService.findBySetorId(setorId, pageable);
+        return new ResponseEntity<>(motos, HttpStatus.OK);
+    }
 
 }
