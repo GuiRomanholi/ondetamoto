@@ -14,7 +14,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 // ...
 @Configuration
-@EnableWebSecurity
 @Order(1)
 public class ApiSecurityConfigurations {
 

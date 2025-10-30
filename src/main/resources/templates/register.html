@@ -3,45 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <title>Cadastro de Usuário</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #333;">
+<body class="font-sans bg-gray-100 text-gray-800">
 
 <div th:replace="~{fragments/layout :: header}"></div>
 
-<main style="max-width: 500px; margin: 40px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-    <h1 style="font-size: 1.8em; color: #007bff; margin-bottom: 20px; text-align: center;">Cadastro de Novo Usuário</h1>
+<main class="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold text-blue-600 mb-5 text-center">Cadastro de Novo Usuário</h1>
 
-    <div th:if="${errorMessage}" style="color: red; text-align: center; margin-bottom: 15px;">
+    <div th:if="${errorMessage}" class="text-red-600 text-center mb-4">
         <p th:text="${errorMessage}"></p>
     </div>
-    <div th:if="${successMessage}" style="color: green; text-align: center; margin-bottom: 15px;">
+    <div th:if="${successMessage}" class="text-green-600 text-center mb-4">
         <p th:text="${successMessage}"></p>
     </div>
 
     <form th:action="@{/register}" th:object="${registerDTO}" method="post">
-        <div style="margin-bottom: 15px;">
-            <label for="email" style="display: block; margin-bottom: 5px; font-weight: bold;">Email:</label>
-            <input type="email" id="email" th:field="*{email}" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        <div class="mb-4">
+            <label for="email" class="block mb-2 font-bold">Email:</label>
+            <input type="email" id="email" th:field="*{email}" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="senha" style="display: block; margin-bottom: 5px; font-weight: bold;">Senha:</label>
-            <input type="password" id="senha" th:field="*{senha}" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        <div class="mb-4">
+            <label for="senha" class="block mb-2 font-bold">Senha:</label>
+            <input type="password" id="senha" th:field="*{senha}" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="role" style="display: block; margin-bottom: 5px; font-weight: bold;">Role:</label>
-            <select id="role" th:field="*{role}" required style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        <div class="mb-6">
+            <label for="role" class="block mb-2 font-bold">Role:</label>
+            <select id="role" th:field="*{role}" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option value="">-- Selecione uma Role --</option>
                 <option th:each="role : ${allowedRoles}" th:value="${role.name()}" th:text="${role.name()}"></option>
             </select>
         </div>
 
-        <button type="submit" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em;">Registrar</button>
+        <button type="submit" class="w-full py-2.5 px-4 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition-colors">Registrar</button>
     </form>
 
-    <p style="text-align: center; margin-top: 20px;">
-        Já tem uma conta? <a th:href="@{/login}" style="color: #007bff; text-decoration: none;">Faça login aqui</a>.
+    <p class="text-center mt-6">
+        Já tem uma conta? <a th:href="@{/login}" class="text-blue-600 hover:underline">Faça login aqui</a>.
     </p>
 </main>
 
