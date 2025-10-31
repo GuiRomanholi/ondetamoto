@@ -74,8 +74,7 @@ public class SetoresWebController {
         }
     }
 
-    // Alterado para @GetMapping para consistência
-    @GetMapping("/excluir/{id}")
+    @PostMapping("/excluir/{id}")
     public String excluirSetor(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             setoresService.deleteByIdForWeb(id);

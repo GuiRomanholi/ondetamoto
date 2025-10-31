@@ -21,10 +21,8 @@ public class MotoWebController {
     @Autowired
     private MotoService motoService;
 
-    // REMOVIDO: MotoRepository
-
     @Autowired
-    private SetoresRepository setoresRepository; // Mantido para popular o dropdown do formulário
+    private SetoresRepository setoresRepository;
 
     @GetMapping("/listar")
     public String listarMotos(Model model) {
@@ -64,8 +62,7 @@ public class MotoWebController {
         }
     }
 
-    // Alterado para @GetMapping para corresponder à prática comum de links de exclusão
-    @GetMapping("/excluir/{id}")
+    @PostMapping("/excluir/{id}")
     public String excluirMoto(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             motoService.deleteByIdForWeb(id);

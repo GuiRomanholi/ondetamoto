@@ -33,8 +33,6 @@ public class SetoresService {
         this.estabelecimentoRepository = estabelecimentoRepository;
     }
 
-    // --- MÉTODOS PARA O WEB CONTROLLER (LIDAM COM A ENTIDADE) ---
-
     @Cacheable(value = "setoresWeb", key = "#pageable.pageNumber")
     public Page<Setores> findAllForWeb(Pageable pageable) {
         return setoresRepository.findAll(pageable);
@@ -47,7 +45,6 @@ public class SetoresService {
 
     @CacheEvict(value = {"setoresWeb", "setorWeb", "setoresApi", "setorApi"}, allEntries = true)
     public Setores saveForWeb(Setores setor) {
-        // Lógica de busca do estabelecimento movida do controller para cá
         if (setor.getEstabelecimento() != null && setor.getEstabelecimento().getId() != null) {
             Estabelecimento est = estabelecimentoRepository.findById(setor.getEstabelecimento().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Estabelecimento não encontrado com o ID: " + setor.getEstabelecimento().getId()));
@@ -65,8 +62,6 @@ public class SetoresService {
         }
         setoresRepository.deleteById(id);
     }
-
-    // --- MÉTODOS PARA O API CONTROLLER (LIDAM COM DTOs) ---
 
     @Cacheable(value = "setoresApi", key = "#pageable.pageNumber")
     public Page<SetoresResponse> findAllForApi(Pageable pageable) {
@@ -110,12 +105,10 @@ public class SetoresService {
         return setoresToResponse(setorAtualizado, false);
     }
 
+    @CacheEvict(value = {"setoresWeb", "setorWeb", "setoresApi", "setorApi"}, allEntries = true)
     public void deleteByIdForApi(Long id) {
-        // Reutiliza a mesma lógica de deleção da web
         deleteByIdForWeb(id);
     }
-
-    // --- MÉTODOS AUXILIARES E CONVERSORES (PRIVADOS) ---
 
     private Setores requestToSetores(SetoresRequest setoresRequest) {
         Setores setores = new Setores();

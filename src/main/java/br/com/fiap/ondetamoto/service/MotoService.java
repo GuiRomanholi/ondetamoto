@@ -35,8 +35,6 @@ public class MotoService {
         this.setoresRepository = setoresRepository;
     }
 
-    // --- MÉTODOS PARA O WEB CONTROLLER (LIDAM COM A ENTIDADE) ---
-
     @Cacheable(value = "motosWeb", key = "#pageable.pageNumber")
     public Page<Moto> findAllForWeb(Pageable pageable) {
         return motoRepository.findAll(pageable);
@@ -49,13 +47,12 @@ public class MotoService {
 
     @CacheEvict(value = {"motosWeb", "motoWeb", "motosApi", "motoApi"}, allEntries = true)
     public Moto saveForWeb(Moto moto) {
-        // A lógica que estava no controller agora está aqui
         if (moto.getSetores() != null && moto.getSetores().getId() != null) {
             Setores setor = setoresRepository.findById(moto.getSetores().getId())
                     .orElseThrow(() -> new EntityNotFoundException("Setor não encontrado com o ID: " + moto.getSetores().getId()));
             moto.setSetores(setor);
         } else {
-            moto.setSetores(null); // Garante que não haverá um setor inválido
+            moto.setSetores(null);
         }
         return motoRepository.save(moto);
     }
@@ -67,8 +64,6 @@ public class MotoService {
         }
         motoRepository.deleteById(id);
     }
-
-    // --- MÉTODOS PARA O API CONTROLLER (LIDAM COM DTOs) ---
 
     @Cacheable(value = "motosApi", key = "#pageable.pageNumber")
     public Page<MotoResponse> findAllForApi(Pageable pageable) {
@@ -96,7 +91,6 @@ public class MotoService {
         Moto motoExistente = motoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada com o ID: " + id));
 
-        // Atualiza os campos
         motoExistente.setMarca(motoRequest.getMarca());
         motoExistente.setPlaca(motoRequest.getPlaca());
         motoExistente.setTag(motoRequest.getTag());
@@ -113,8 +107,8 @@ public class MotoService {
         return motoToResponse(motoAtualizada, true);
     }
 
+    @CacheEvict(value = {"motosWeb", "motoWeb", "motosApi", "motoApi"}, allEntries = true)
     public void deleteByIdForApi(Long id) {
-        // Reutiliza a lógica do método web
         deleteByIdForWeb(id);
     }
 
@@ -128,8 +122,6 @@ public class MotoService {
         return motos.map(moto -> motoToResponse(moto, true));
     }
 
-
-    // --- MÉTODOS AUXILIARES E CONVERSORES (PRIVADOS) ---
 
     private Moto requestToMoto(MotoRequest motoRequest) {
         Moto moto = new Moto();

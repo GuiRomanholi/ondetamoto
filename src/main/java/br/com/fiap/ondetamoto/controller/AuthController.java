@@ -2,16 +2,15 @@ package br.com.fiap.ondetamoto.controller;
 
 import br.com.fiap.ondetamoto.dto.AuthDTO;
 import br.com.fiap.ondetamoto.dto.RegisterDTO;
+import br.com.fiap.ondetamoto.exception.EmailAlreadyExistsException; // IMPORTANTE
 import br.com.fiap.ondetamoto.model.Usuario;
-import br.com.fiap.ondetamoto.model.UserRole;
-import br.com.fiap.ondetamoto.repository.UsuarioRepository;
 import br.com.fiap.ondetamoto.service.TokenService;
+import br.com.fiap.ondetamoto.service.UsuarioService; // IMPORTADO
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+
+
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid AuthDTO authDTO) {
@@ -40,37 +42,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterDTO registerDTO) {
-        if (usuarioRepository.findByEmail(registerDTO.email()) != null) {
-            return ResponseEntity.badRequest().body("Email já cadastrado.");
-        }
-
-        String senhaCriptografada = new BCryptPasswordEncoder()
-                .encode(registerDTO.senha());
-
-        UserRole role;
         try {
-            role = UserRole.valueOf(registerDTO.role().toUpperCase());
+            usuarioService.registerUser(registerDTO);
+            return ResponseEntity.ok().build();
+
+        } catch (EmailAlreadyExistsException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Role inválida. As roles permitidas são: " + getAllowedRolesString());
+            return ResponseEntity.badRequest().body("Role inválida. Use 'USER' ou 'ADMIN'.");
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Ocorreu um erro inesperado.");
         }
-
-        Usuario novoUsuario = new Usuario(
-                registerDTO.email(),
-                senhaCriptografada,
-                role);
-
-        usuarioRepository.save(novoUsuario);
-        return ResponseEntity.ok().build();
     }
 
-    private String getAllowedRolesString() {
-        StringBuilder allowedRoles = new StringBuilder();
-        for (UserRole r : UserRole.values()) {
-            allowedRoles.append(r.name()).append(", ");
-        }
-        if (allowedRoles.length() > 0) {
-            allowedRoles.setLength(allowedRoles.length() - 2);
-        }
-        return allowedRoles.toString();
-    }
 }

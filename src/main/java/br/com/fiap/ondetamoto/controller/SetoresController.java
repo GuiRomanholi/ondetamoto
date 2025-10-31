@@ -28,8 +28,6 @@ public class SetoresController {
     @Autowired
     private SetoresService setoresService;
 
-    // REMOVIDO: SetoresRepository
-
     @Operation(summary = "Criar um novo Setor")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Setor cadastrado com sucesso",

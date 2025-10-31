@@ -46,14 +46,13 @@ public class EstabelecimentoService {
         return estabelecimentoRepository.save(estabelecimento);
     }
 
+    @CacheEvict(value = {"estabelecimentosWeb", "estabelecimentoWeb", "estabelecimentosApi", "estabelecimentoApi"}, allEntries = true)
     public void deleteByIdForWeb(Long id) {
         if (!estabelecimentoRepository.existsById(id)) {
             throw new EntityNotFoundException("Estabelecimento não encontrado com o ID: " + id);
         }
         estabelecimentoRepository.deleteById(id);
     }
-
-
 
     @Cacheable(value = "estabelecimentos", key = "#id")
     public EstabelecimentoResponse findByIdForApi(Long id) {
@@ -63,7 +62,6 @@ public class EstabelecimentoService {
     }
 
     public Page<EstabelecimentoResponse> findAllForApi(Pageable pageable) {
-        // Reutiliza o método que busca a página de entidades e apenas converte para DTO
         return findAllForWeb(pageable)
                 .map(estabelecimento -> estabelecimentoToResponse(estabelecimento, true));
     }
@@ -89,7 +87,7 @@ public class EstabelecimentoService {
         return estabelecimentoToResponse(salvo, false);
     }
 
-    @CacheEvict(value = "estabelecimentos", key = "#id")
+    @CacheEvict(value = {"estabelecimentosWeb", "estabelecimentoWeb", "estabelecimentosApi", "estabelecimentoApi"}, allEntries = true)
     public void deleteByIdForApi(Long id) {
         deleteByIdForWeb(id);
     }

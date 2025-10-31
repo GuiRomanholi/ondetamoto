@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "api-motos")
 public class MotoController {
 
-    // REMOVIDO: MotoRepository
     @Autowired
     private MotoService motoService;
 

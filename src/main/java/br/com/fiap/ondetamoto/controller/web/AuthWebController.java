@@ -19,7 +19,6 @@ public class AuthWebController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // Exibe a página de login e trata erros de autenticação.
     @GetMapping("/login")
     public String login(@RequestParam(value = "error", required = false) String error, Model model) {
         if (error != null) {
@@ -28,7 +27,6 @@ public class AuthWebController {
         return "login";
     }
 
-    // Exibe o formulário de registro de novo usuário.
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
         if (!model.containsAttribute("registerDTO")) {
@@ -38,7 +36,6 @@ public class AuthWebController {
         return "register";
     }
 
-    // Processa o registro de um novo usuário.
     @PostMapping("/register")
     public String registerUser(@ModelAttribute("registerDTO") RegisterDTO registerDTO,
                                RedirectAttributes redirectAttributes) {
@@ -61,7 +58,6 @@ public class AuthWebController {
         }
     }
 
-    // Realiza o logout do usuário
     @GetMapping("/logout")
     public String logout() {
         return "redirect:/login";
