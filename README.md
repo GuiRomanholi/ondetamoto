@@ -15,9 +15,13 @@ Esses dados são enviados para um aplicativo mobile, que centraliza todas as inf
 - Categorização por status ou função
 
 ## 🎥 Link do Vídeo
-[Link do Video de Java](https://www.youtube.com/watch?v=nHo1kcqVIB0)
+[Link do Video de Java](https://www.youtube.com/watch?v=AXt_AFpI9sg)
 
-## 🔗 Rotas Pricipais
+## 🔗 Rotas Pricipais para o Projeto Deployado
+- [https://ondetamoto-rm557462.azurewebsites.net/login](https://ondetamoto-rm557462.azurewebsites.net/login)
+- [https://ondetamoto-rm557462.azurewebsites.net/swagger-ui/index.html](https://ondetamoto-rm557462.azurewebsites.net/swagger-ui/index.html)
+
+## 🔗 Rotas Pricipais para teste Local
 
 A API do projeto pode ser acessada via Swagger na rota, ou pela páginas html, e o banco tambem:
 
